@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend server for rooms.chat",
+  "main": "src/main.ts",
+  "author": "Darby Burbidge and Max Norman",
+  "scripts": {
+  "build": "tsc",
+  "start": "node ./bin/main.js",
+  "dev": "ts-node ./src/main.ts"
+  }, "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
