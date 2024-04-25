@@ -5,12 +5,15 @@
   "main": "src/main.ts",
   "author": "Darby Burbidge and Max Norman",
   "scripts": {
-  "build": "tsc",
-  "start": "node ./bin/main.js",
-  "dev": "ts-node ./src/main.ts"
-  }, "license": "MIT",
+    "build": "tsc",
+    "start": "node ./bin/main.js",
+    "dev": "ts-node ./src/main.ts"
+  },
+  "license": "MIT",
   "dependencies": {
     "@types/node": "^20.12.7",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
