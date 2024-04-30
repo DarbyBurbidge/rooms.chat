@@ -13,8 +13,11 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const corsOptions = {
-	origin: '*',
-	transports: ['websocket', 'polling']
+	origin: 'http://localhost:5173',
+	transports: ['websocket', 'polling'],
+	methods: ["GET", "POST"],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	credentials: true
 };
 
 app.use(cors.default(corsOptions));
@@ -33,6 +36,7 @@ mongoose.connect(`${process.env.ATLAS_URI}`);
 io.on("connection", (socket) => {
 
 })
+
 server.listen(port, () => {
 	console.log(`connected on port ${port}`);
 });
