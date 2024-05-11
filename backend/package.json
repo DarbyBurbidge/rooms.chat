@@ -2,18 +2,20 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "backend server for rooms.chat",
-  "main": "src/main.ts",
+  "main": "main.ts",
   "author": "Darby Burbidge and Max Norman",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node ./bin/main.js",
-    "dev": "nodemon ./src/main.ts",
+    "start": "node bin/main.js",
+    "dev": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm src/main.ts",
     "prod": "yarn run build && NODE_ENV=prod yarn run start"
   },
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "google-auth-library": "^9.9.0",
     "mongoose": "^8.3.2",
     "socket.io": "^4.7.5",
     "typescript": "^5.4.5"
