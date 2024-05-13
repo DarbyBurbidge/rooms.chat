@@ -1,8 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
+import Login from './login.tsx'
 import './index.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { io } from "socket.io-client"
+import NavScroll from './nav.tsx'
 
 const socket = io("ws://localhost:3000", {
   reconnectionDelayMax: 10000,
@@ -25,6 +28,7 @@ socket.on("connect_error", (error) => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <NavScroll/>
+    <Login/>
   </React.StrictMode>,
 )
