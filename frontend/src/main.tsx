@@ -6,6 +6,7 @@ import './index.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { io } from "socket.io-client"
 import NavScroll from './nav.tsx'
+import HomeMenu from './home.tsx'
 
 const socket = io("ws://localhost:3000", {
   reconnectionDelayMax: 10000,
@@ -29,6 +30,6 @@ socket.on("connect_error", (error) => {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <NavScroll/>
-    <Login/>
+    <HomeMenu/>
   </React.StrictMode>,
 )

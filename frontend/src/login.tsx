@@ -5,6 +5,7 @@ import { CardBody, CardHeader } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import { GoogleButton } from '@react-oauth/google';
 
 function Login() {
   return (
@@ -34,6 +35,9 @@ function Login() {
       </Form.Group>
       <Button variant="primary" type="submit">
         Login
+      </Button>
+      <Button variant="danger" type="ignore">
+        Login With Google
       </Button>
     </Form>
     </CardBody>
