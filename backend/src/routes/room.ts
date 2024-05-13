@@ -10,6 +10,16 @@ export const roomDelete = async (req: Request, res: Response) => {
 	res.send("roomDelete");
 };
 
+export const roomLink = async (req: Request, res: Response) => {
+	console.log(req.body);
+	res.send("roomLink");
+};
+
+export const roomLeave = async (req: Request, res: Response) => {
+	console.log(req.body);
+	res.send("roomLeave");
+};
+
 export const roomList = async (req: Request, res: Response) => {
 	console.log(req.body);
 	res.send("roomList");
@@ -24,5 +34,7 @@ export const roomRouter = Router();
 
 roomRouter.put("/create", roomCreate);
 roomRouter.delete("/delete", roomDelete);
+roomRouter.get("/link", roomLink);
+roomRouter.put("/leave", roomLeave);
 roomRouter.get("/list", roomList);
 roomRouter.get("/info", roomInfo);
