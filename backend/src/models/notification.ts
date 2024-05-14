@@ -4,16 +4,20 @@ import mongoose from "mongoose";
 import { User } from "./user.ts";
 
 @modelOptions({})
-export class Message {
+export class Notification {
 	@prop({ auto: true })
-	readonly _id: mongoose.Types.ObjectId;
+	_id: mongoose.Types.ObjectId;
 
 	@prop({ ref: () => User, nullable: true })
-	sender?: Ref<User>;
+	from?: Ref<User>;
 
-	@prop({ default: Date.now })
-	timestamp: string;
+	@prop({ required: true })
+	message: string;
 
-	@prop({ nullable: true })
-	content?: string;
+	@prop({ required: true })
+	link: string;
+
+	@prop({ default: false })
+	read: boolean;
 }
+

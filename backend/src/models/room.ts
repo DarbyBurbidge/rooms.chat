@@ -1,4 +1,4 @@
-import { modelOptions, prop, getModelForClass } from "@typegoose/typegoose";
+import { modelOptions, prop } from "@typegoose/typegoose";
 import type { Ref } from "@typegoose/typegoose";
 import mongoose from "mongoose";
 import { User } from "./user.ts";
@@ -10,11 +10,18 @@ export class Room {
 	@prop({ auto: true })
 	readonly _id: mongoose.Types.ObjectId;
 
-	@prop({ ref: () => User })
-	creator?: Ref<User>;
+	@prop({ required: true, ref: () => User })
+	creator: Ref<User>;
 
-	@prop({ ref: () => Message })
-	messages?: [Ref<Message>];
+	@prop({ ref: () => User, default: [] })
+	admins: [Ref<User>];
+
+	@prop({ ref: () => User, default: [] })
+	users: [Ref<User>];
+
+	@prop({ ref: () => Message, default: true })
+	messages: [Ref<Message>];
+
+	@prop({ required: true })
+	roomCode: string;
 }
-
-export const RoomModel = getModelForClass(Room);

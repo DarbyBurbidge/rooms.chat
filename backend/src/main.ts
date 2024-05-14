@@ -44,12 +44,18 @@ io.on("error", (err) => {
 	console.error(err);
 });
 
-mongoose.connect(`${process.env.ATLAS_URI}`);
-db.on('error', console.error.bind(console, 'Connection Error'));
-db.once('open', async () => {
+mongoose.connect(`${process.env.ATLAS_URI}`).then(() => {
 	console.log("connected to Atlas");
+}).catch((err) => {
+	console.error(err);
 });
-
+db.on('error', async (err) => { console.error(err); });
+db.once('open', async () => {
+	console.log('Atlas Open');
+});
+db.on('disconnected', () => {
+	console.log('Atlas Closed');
+});
 server.listen(port, () => {
 	console.log(`connected on port ${port}`);
 });

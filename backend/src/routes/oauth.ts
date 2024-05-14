@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { OAuth2Client } from "google-auth-library";
+import { UserModel } from "../models/exports.ts";
 
 export const oauthGet = async (req: Request, res: Response) => {
 	const code = req.query.code;
@@ -14,13 +15,20 @@ export const oauthGet = async (req: Request, res: Response) => {
 		const response = await oAuth2Client.getToken(code);
 		await oAuth2Client.setCredentials(response.tokens);
 		console.log('Tokens acquired');
-		const user = oAuth2Client.credentials;
-		console.log('credentials', user);
+		const userCred = oAuth2Client.credentials;
+		console.log('credentials', userCred);
 
-		const ticket = await oAuth2Client.verifyIdToken({ idToken: user.id_token, audience: process.env.CLIENT_ID });
+		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: userCred.id_token, audience: process.env.CLIENT_ID });
+		const payload = ticket.getPayload();
+		console.log(ticket);
 
-		console.log('ticket', ticket);
-		res.cookie('Bearer', user.id_token);
+		let user = await UserModel.findOne({ googleId: payload.sub });
+		if (!user) {
+			user = await UserModel.create({ googleId: payload.sub, family_name: payload.family_name, given_name: payload.given_name, imageUrl: payload.picture });
+			console.log('user added:', user);
+		}
+		console.log('user found', user);
+		res.cookie('Bearer', userCred.id_token);
 		res.redirect("http://localhost:5173");
 	} catch (err) {
 		console.error(err);
