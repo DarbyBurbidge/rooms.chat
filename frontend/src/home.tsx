@@ -10,13 +10,17 @@ class RoomToReact extends Component{
     this.state = {
         room_name : "test",
         msg_count : 3,
-        last_msg : "Test Message"
+        last_msg : "Test Message",
+        room_uid : this.props.uid
     }
     this.setState({
         room_name : this.props.room_name,
         last_msg : this.props.last_msg
     });
 
+  }
+  createLink(){
+    return "/rooms/" + this.state.room_uid
   }
     render()
     {
@@ -28,7 +32,7 @@ class RoomToReact extends Component{
         return (    
     <ListGroup.Item
         as="li"
-        className="d-flex justify-content-between align-items-start"
+        className="d-flex justify-content-between align-items-start"  action href={this.createLink}
       >
         <div className="ms-2 me-auto">
           <div className="fw-bold">{this.state.room_name}</div>
