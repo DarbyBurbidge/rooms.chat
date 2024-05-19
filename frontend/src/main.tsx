@@ -13,8 +13,30 @@ import SlideOutList from './contact_list.tsx'
 import RegistrationForm from './register.tsx'
 import Example from './contact_list.tsx'
 import ChatRoom from './chat.tsx'
+//import { CookiesProvider, useCookies } from 'react-cookie'
+import { Route, RouterProvider, createBrowserRouter , useLoaderData} from 'react-router-dom'
 
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
+function withRouter(Component) {
+  function ComponentWithRouterProp(props) {
+    let location = useLocation();
+    let navigate = useNavigate();
+    let params = useParams();
+    return (
+      <Component
+        {...props}
+        router={{ location, navigate, params }}
+      />
+    );
+  }
+
+  return ComponentWithRouterProp;
+}
 const socket = io("ws://localhost:3000", {
   reconnectionDelayMax: 10000,
   transports: ['websocket']
@@ -33,12 +55,30 @@ socket.on("connect_error", (error) => {
     console.log(error.message);
   }
 });
-
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <NavScroll/>,
+  },
+  {
+    path:"/login",
+    element: <Login></Login>
+  },
+  {
+    path:"/room/:roomID",
+    loader: ({ request, params }) => { return (params.roomID);},
+    Component: withRouter(ChatRoom)
+  }
+]);
+  console.log(document.cookie);
     //<RegistrationForm></RegistrationForm>
-    //
+    //<ChatRoom></ChatRoom>
+    //<CookiesProvider>
+
+    //</CookiesProvider>
+<Route path="chat/:id" component={ChatRoom}/>
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-  <NavScroll />
-  <ChatRoom></ChatRoom>
+     <RouterProvider router={router} />
   </React.StrictMode>,
 )

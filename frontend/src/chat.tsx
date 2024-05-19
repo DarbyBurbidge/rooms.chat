@@ -1,10 +1,11 @@
 import { Component } from 'react';
-import { Button, Container, Row, Stack } from 'react-bootstrap';
+import { Button, CardFooter, Container, Row, Stack } from 'react-bootstrap';
 import { MessageBox } from "react-chat-elements";
 
 import Card from 'react-bootstrap/Card'
 import { CardBody, CardHeader } from 'react-bootstrap';
 import { Input } from 'react-chat-elements' 
+import { useLoaderData, withRouter } from 'react-router-dom';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
 import RoomModel from '../../backend/src/models/room.ts'
@@ -12,21 +13,26 @@ import RoomModel from '../../backend/src/models/room.ts'
 
 class ChatRoom extends Component{
     input: string;
-
+    msgs: [];
+    id: string;
  constructor(props) {
     super(props);
+    this.msgs = [];
     this.state = {
         msgs: ["Test1", "Test2" ,"Test3"],
-        room_name: "test Room"
-
+        room_name: "test Room",
+        id: this.props.router.params.roomID
     }
-    this.input = "";
+    //this.input = "";
   }
-
+  addMessage = (newMessage) => {
+    this.setState((prevState) => ({
+      msgs: [...prevState.msgs, newMessage]
+    }));
+  };
   add_msg(){
-    text = this.input
-    this.state.msgs.append(text)
-    this.setState({msgs: this.state.msgs.append(text)})
+    this.addMessage(this.input)
+    //alert(this.state.msgs)
 }
 
   render() {
@@ -35,7 +41,7 @@ class ChatRoom extends Component{
         <>
         <br></br>
         <Card>
-            <CardHeader>{this.state.room_name}</CardHeader>
+            <CardHeader>{this.state.id}</CardHeader>
         <CardBody>
         <Row>
             {msgs.map((room, index) => (
@@ -43,9 +49,12 @@ class ChatRoom extends Component{
             ))}
             <MessageBox position={"right"} type={"text"} title={"Message Box Title"} text="Here is a text type message box">  </MessageBox> 
     </Row>
-        <Row>
-        <Input ref={this.input} placeholder="Type here..."multiline={true}  rightButtons=<Button onClick={this.add_msg} >Send</Button> /> </Row>
         </CardBody>
+        <CardFooter>
+
+        <Row>
+        <Input onChange={(e) => this.input = e.target.value} placeholder="Type here..."multiline={true}  rightButtons=<Button onClick={() => this.add_msg()}>Send</Button> /> </Row>
+        </CardFooter>
         </Card>
 </>
   );

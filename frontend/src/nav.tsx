@@ -6,25 +6,57 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import ContactList from './contact_list';
+import { instanceOf } from 'prop-types';
+
+import { CookiesProvider, useCookies, Cookies, withCookies } from 'react-cookie'
+const navigate = (url: string) => {
+  window.location.href = url;
+}
+
+const auth = async () => {
+  //useCookies(["user"]) 
+  const response = await fetch('http://127.0.0.1:3000/account/login',
+    { method: 'put' });
+  const data = await response.json();
+  //console.log(data)
+  //alert(data.url) 
+  navigate(data.url);
+}
+
 class NavScroll extends Component {
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
     constructor(props) {
     super(props);
+    const {cookies} = props;
     this.state = {
-        logged_in: true
-    }
+        logged_in: cookies.get('logged_in') || false,
+        user_name: cookies.get('user_name') || ""
+    };
+  }
+
+  async localauth() 
+  {
+    await auth();
+    alert("test");
+    const { cookies } = this.props;
+
+    cookies.set('logged_in', true , { path: '/' });
+    this.setState({ logged_in: cookies.get('logged_in')});
   }
   render() {
     //this.setState({logged_in: this.props.logged_in});
-    const isLoggedIn = this.state.logged_in;
+    //const [isLoggedIn, setCookie] = useCookies(['user']);
     return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container fluid>
         <Navbar.Brand href="#">Rooms.Chat</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
-        {isLoggedIn? (
+        {this.state.logged_in? (
         <><ContactList></ContactList></>):(
-            <><Button variant="outline-success">Log In</Button> 
-            <Button variant="outline-success">Create Account</Button> 
+            <><Button variant="outline-success" onClick={this.localauth }>Log In</Button> 
+            <Button variant="outline-success" onClick={() => {auth()} }>Create Account</Button> 
             </>
         )}
         <Navbar.Collapse id="navbarScroll">
@@ -36,7 +68,7 @@ class NavScroll extends Component {
           >
             
           </Nav>
-          {isLoggedIn ? ( 
+          {this.state.logged_in? ( 
           
           <><Button variant="outline-success">New Chat +</Button><Form className="d-flex">
                             <Form.Control
@@ -56,4 +88,4 @@ class NavScroll extends Component {
 }
 }
 
-export default NavScroll;
+export default withCookies(NavScroll);
