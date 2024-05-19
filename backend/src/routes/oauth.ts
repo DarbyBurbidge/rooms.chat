@@ -6,7 +6,7 @@ export const oauthGet = async (req: Request, res: Response) => {
 	const code = req.query.code;
 	console.log('code', code);
 	try {
-		const redirectUrl = 'http://127.0.0.1:3000/oauth';
+		const redirectUrl = 'http://localhost:3000/oauth';
 		const oAuth2Client = new OAuth2Client(
 			process.env.CLIENT_ID,
 			process.env.CLIENT_SECRET,
@@ -28,8 +28,15 @@ export const oauthGet = async (req: Request, res: Response) => {
 			console.log('user added:', user);
 		}
 		console.log('user found', user);
-		res.cookie('Bearer', userCred.id_token);
-		res.redirect("http://localhost:5173");
+		res.cookie('Authorization',
+			`${userCred.token_type} ${userCred.id_token}`,
+			{
+				//sameSite: "strict",
+				maxAge: 1000 * 60 * 60,
+				httpOnly: true,
+				path: '/'
+			});
+		res.redirect(`http://localhost:5173/${user?.id}`);
 	} catch (err) {
 		console.error(err);
 	}

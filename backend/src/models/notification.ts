@@ -15,7 +15,10 @@ export class Notification {
 	message: string;
 
 	@prop({ required: true })
-	link: string;
+	type: string;
+
+	@prop({ required: true })
+	url: string;
 
 	@prop({ default: false })
 	read: boolean;

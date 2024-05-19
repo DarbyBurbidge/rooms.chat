@@ -12,8 +12,14 @@ export class Message {
 	sender?: Ref<User>;
 
 	@prop({ default: Date.now })
-	timestamp: string;
+	createTime: string;
+
+	@prop({ nullable: true })
+	editTime: string;
 
 	@prop({ nullable: true })
 	content?: string;
+
+	@prop({ default: false })
+	read: boolean;
 }

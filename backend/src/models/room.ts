@@ -22,6 +22,6 @@ export class Room {
 	@prop({ ref: () => Message, default: true })
 	messages: [Ref<Message>];
 
-	@prop({ required: true })
-	roomCode: string;
+	@prop()
+	inviteUrl?: string;
 }

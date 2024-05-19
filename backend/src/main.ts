@@ -15,7 +15,7 @@ config();
 export const app = express();
 const port = 3000;
 const server = createServer(app);
-const io = new Server(server);
+export const io = new Server(server);
 const db = mongoose.connection;
 const corsOptions = {
 	origin: ['http://localhost:5173', 'http://localhost'],
@@ -25,6 +25,8 @@ const corsOptions = {
 	credentials: true
 };
 
+
+app.set("io", io);
 app.use(cors(corsOptions));
 app.use("/oauth", oauthRouter);
 // account
@@ -36,9 +38,11 @@ app.use("/contact", contactRouter);
 // room
 app.use("/room", roomRouter);
 
-
 io.on("connection", (socket) => {
-	console.log(`connected to socket ${socket}`);
+	console.log(`connected to socket ${socket.id}`);
+	socket.rooms.forEach((room) => {
+		console.log(`room is: ${room}`);
+	});
 });
 io.on("error", (err) => {
 	console.error(err);

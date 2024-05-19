@@ -26,6 +26,8 @@ other commands can be found in package.json
 
 ## API Documentation:
 
+Errors return as a 500 status Server Error
+
 ### OAuth
 
 #### GET /oauth
@@ -34,7 +36,7 @@ account/login redirects here on consent
 
 ### Account
 
-#### PUT /account/login
+#### POST /account/login
 uses google oauth api to login/register a user
 
 #### GET /account/info
@@ -44,39 +46,161 @@ uses current user to retrieve user account info and settings
 
 ### Room
 
-#### PUT /room/create
-creates a room
+#### POST /room/create/:socketId
+takes the socketId from the client and joins the socket to the roomId
+adding it to the room
+```json
+returns: {
+    "room": {
+    	roomCode: string
+    }
+}
+```
 
-#### DELETE /room/delete?roomId=<roomId>
+#### DELETE /room/delete/:roomId
 deletes a room that the user has created
+```json
+returns Nothing
+```
 
-#### GET /room/link?roomId=<roomId>
+#### GET /room/link/:roomId
 retreives an invite link for the given room
+```json
+return: {
+	"inviteUrl": string
+}
+```
 
-#### PUT /room/leave?roomId=<roomId>
+#### PUT /room/join/:socketId/:roomId
+joins the clients account to the room associated with the roomId
+then adds the clients socket to the socket room instance
+```json
+returns: Nothing
+```
+
+#### PUT /room/leave/:socketId/:roomId
 removes the user from the chatroom
+disconnects the client socket from the socket room instance
+returns the room so the room data can be updated on the client side
+```json
+returns: {
+	"room": {
+        id,
+		users: User[]
+    }
+}
+```
 
-#### GET /room/list
+#### GET /room/list/
 retrieves a list of rooms accessible by the current user
+```json
+returns: {
+    "rooms": Room[]
+}
+```
 
-#### GET /room/info?roomId=<roomId>
+#### GET /room/info/:roomId
 shows details about a room such as who the creator/admins are
+```json
+returns: {
+	"room": {
+		id: string,
+		creator: User,
+		admins: User[],
+		users: User[],
+		messages: Message[]
+	}
+}
+```
 
 ### User
 
 #### GET /user/search?username=<user>
 searches users by username 
+1P
+1P
+```json
+returns: {
+	"users": User[]
+}
+```
 
-#### PUT /user/invite?userId=<userId>&roomId=<roomId>
+#### PUT /user/invite/:userId/:roomId
 sends an invite to a specific user for the specified room
+returns: Nothing
 
 ### Contact (User)
 
 #### GET /contact/list
 retrieves the list of contacts for the current user
+```json
+returns: {
+	contacts: User[]
+}
+```
 
-#### PUT /contact/add?userId=<userId>
+#### PUT /contact/add/:userId
 adds a user to the current users list of contacts
 
-#### DELETE /contact/delete?userId=<userId>
+#### DELETE /contact/delete/:userId
 removes a user from current users list of contacts
+
+### Notifications
+Notifications are generated on by the backend by other events and endpoints
+#### PUT notification/read/:noteId
+marks a notification with the given noteId as read
+```json
+returns: Nothing
+```
+
+#### DELETE notification/delete/:noteId
+deletes a notification with the given Id
+```json
+returns: Nothing
+```
+
+#### POST /message/create/:roomId
+reads message content from the req body, then broadcasts that message on behalf of the user
+```json
+takes: {
+	"content": string
+}
+```
+```json
+returns: {
+	message: {
+		id: string,
+		sender: User,
+		content: string,
+		createTime: Date,
+		editTime: Date,
+		read: boolean
+	}
+}
+```
+
+#### PUT /message/edit/:messageId
+takes a content string from the request body and modifies the message in the database. Also broadcasts the update to other clients in the room
+```json
+takes: {
+	content: string
+}
+```
+```json
+returns: {
+	message: {
+		id: string,
+		sender: User,
+		content: string,
+		createTime: Date,
+		editTime: Date,
+		read: boolean
+	}
+}
+```
+
+#### DELETE /message/delete/:messageId 
+deletes the message from the database
+```json
+returns: Nothing
+```
