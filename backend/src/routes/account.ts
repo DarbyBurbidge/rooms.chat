@@ -28,7 +28,7 @@ export const accountLogin = async (req: Request, res: Response) => {
 export const accountDelete = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
-		UserModel.findOneAndDelete({ googleId: usersub });
+		await UserModel.findOneAndDelete({ googleId: usersub });
 		res.send();
 	} catch (err) {
 		res.statusCode = 500;

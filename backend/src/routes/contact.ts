@@ -19,7 +19,7 @@ export const contactAdd = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const userId = req.params.userId;
-		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { contacts: userId })
+		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { contacts: userId }, { new: true });
 		res.send({
 			contacts: user?.contacts
 		})
@@ -33,7 +33,7 @@ export const contactDelete = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const userId = req.params.userId;
-		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { $pull: { contacts: userId } });
+		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { $pull: { contacts: userId } }, { new: true });
 		res.send({
 			contacts: user?.contacts
 		})

@@ -6,7 +6,7 @@ const messageCreate = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const roomId = req.params.roomId;
-		const content = JSON.parse(req.body)?.content;
+		const content = req.body?.content;
 		const user = await UserModel.findOne({ googleId: usersub });
 		const message = await MessageModel.create({ sender: user?.id, content: content });
 		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message.id } });
@@ -28,9 +28,14 @@ const messageCreate = async (req: Request, res: Response) => {
 
 const messageEdit = async (req: Request, res: Response) => {
 	try {
+		const usersub = res.locals.usersub;
 		const messageId = req.params.messageId;
-		const content = JSON.parse(req.body)?.content;
-		const message = await MessageModel.findByIdAndUpdate(messageId, { content: content, editTime: Date.now() });
+		const content = req.body?.content;
+		console.log(content)
+		const user = await UserModel.findOne({ googleId: usersub });
+		console.log(user?.id)
+		const message = await MessageModel.findOneAndUpdate({ _id: messageId, sender: user?.id }, { content: content, editTime: Date.now() }, { new: true });
+		console.log(message)
 		res.send({
 			message: {
 				id: message?.id,
@@ -49,9 +54,13 @@ const messageEdit = async (req: Request, res: Response) => {
 
 const messageDelete = async (req: Request, res: Response) => {
 	try {
+		const usersub = res.locals.usersub;
 		const messageId = req.params.messageId;
-		const room = await RoomModel.findOneAndUpdate({ messages: messageId });
-		const message = await MessageModel.findByIdAndDelete(messageId);
+		const user = await UserModel.findOne({ googleId: usersub });
+		const message = await MessageModel.findOneAndDelete({ _id: messageId, sender: user?.id });
+		if (message) {
+			const room = await RoomModel.findOneAndUpdate({ messages: messageId });
+		}
 		res.send();
 	} catch (err) {
 		res.statusCode = 500;
@@ -64,4 +73,4 @@ messageRouter.use(authMW);
 
 messageRouter.post("/create/:roomId", messageCreate);
 messageRouter.put("/edit/:messageId", messageEdit);
-messageRouter.get("/delete/:messageId", messageDelete);
+messageRouter.delete("/delete/:messageId", messageDelete);

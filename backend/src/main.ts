@@ -1,5 +1,5 @@
 import { createServer } from "http";
-import express from "express";
+import express, { json } from "express";
 import cors from "cors";
 import mongoose from "mongoose"
 import { Server } from "socket.io";
@@ -9,6 +9,8 @@ import { contactRouter } from "./routes/contact.ts";
 import { roomRouter } from "./routes/room.ts";
 import { userRouter } from "./routes/user.ts";
 import { oauthRouter } from "./routes/oauth.ts";
+import { noteRouter } from "./routes/notification.ts";
+import { messageRouter } from "./routes/message.ts";
 
 config();
 
@@ -28,6 +30,7 @@ const corsOptions = {
 
 app.set("io", io);
 app.use(cors(corsOptions));
+app.use(json());
 app.use("/oauth", oauthRouter);
 // account
 app.use("/account", accountRouter);
@@ -37,6 +40,10 @@ app.use("/user", userRouter);
 app.use("/contact", contactRouter);
 // room
 app.use("/room", roomRouter);
+// notification
+app.use("/note", noteRouter);
+// message
+app.use("/message", messageRouter);
 
 io.on("connection", (socket) => {
 	console.log(`connected to socket ${socket.id}`);

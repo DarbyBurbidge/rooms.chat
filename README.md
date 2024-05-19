@@ -141,12 +141,17 @@ returns: {
 
 #### PUT /contact/add/:userId
 adds a user to the current users list of contacts
+```json
+returns: {
+	contacts: User[]
+}
+```
 
 #### DELETE /contact/delete/:userId
 removes a user from current users list of contacts
 
 ### Notifications
-Notifications are generated on by the backend by other events and endpoints
+Notifications are generated on by the backend by other events and endpoints, that's why there is no create
 #### PUT notification/read/:noteId
 marks a notification with the given noteId as read
 ```json
