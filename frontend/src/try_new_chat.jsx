@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import Card from 'react-bootstrap/Card';
 import { CardBody, CardHeader } from 'react-bootstrap';
 import { Input } from 'react-chat-elements';
+import * as Icon from 'react-bootstrap-icons';
 
 const queryClient = new QueryClient();
 
@@ -50,14 +51,16 @@ async function current_user_data(){
 }
 
 async function make_user_dict(messages) {
-    const user_dict = {};
-    await Promise.all(messages.map(async (element) => {
-        const data = await fetch_user_data(element.sender);
-        user_dict[element.sender] = data;
-    }));
-    return user_dict;
-}
+  const user_dict = {};
+  const uniqueSenders = [...new Set(messages.map(message => message.sender))];
 
+  await Promise.all(uniqueSenders.map(async (senderId) => {
+      const data = await fetch_user_data(senderId);
+      user_dict[senderId] = data;
+  }));
+
+  return user_dict;
+}
 export default function Tester() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -131,7 +134,9 @@ function Example() {
             ) : (
                 <Card>
                     <CardHeader>
-                        <div class="d-inline-flex"><a href = "/home"><Button>Back</Button></a><h1>{room.creator.given_name} {room.creator.family_name}'s Room</h1></div>
+                        <div class="d-inline-flex justify-content-between"><a href = "/home"><Button variant="outline-primary" ><Icon.ArrowLeft /></Button></a><h1>{room.creator.given_name} {room.creator.family_name}'s Room</h1>
+                        <Button variant="outline-secondary"> Create Invite Link </Button>
+                        </div>
                     </CardHeader>
                     <CardBody>
                         <Row>

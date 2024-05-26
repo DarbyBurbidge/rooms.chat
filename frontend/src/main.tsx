@@ -24,6 +24,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import JoinModal from './join_room.tsx'
 
 function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
   {
     path: "/tester/:roomID",
     element: <><NavScroll></NavScroll><Tester></Tester></>
+  },
+  {
+    path: "/invite/:inviteLink",
+    element: <> <JoinModal></JoinModal></>
   }
 ]);
   console.log(document.cookie);

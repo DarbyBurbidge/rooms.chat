@@ -140,6 +140,27 @@ export const roomInfo = async (req: Request, res: Response) => {
 		res.send();
 	}
 };
+export const roomLinkInfo = async (req: Request, res: Response) => {
+	try {
+		const inviteUrl = req.params.roomId;
+		console.log(inviteUrl)
+		const room = await RoomModel.findOne({ inviteUrl: inviteUrl }).populate('creator').populate('admins').populate('users').populate('messages');
+		res.send({
+			"room": {
+				id: room?.id,
+				creator: room?.creator,
+				admins: room?.admins,
+				users: room?.users,
+				messages: room?.messages
+			}
+		});
+	} catch (err) {
+		console.error(err);
+		res.statusCode = 500;
+		res.statusMessage = "Server Error";
+		res.send();
+	}
+};
 
 export const roomRouter = Router();
 roomRouter.use(authMW);
@@ -151,3 +172,4 @@ roomRouter.put("/join/:socketId/:inviteUrl", roomJoin);
 roomRouter.put("/leave/:socketId/:roomId", roomLeave);
 roomRouter.get("/list", roomList);
 roomRouter.get("/info/:roomId", roomInfo);
+roomRouter.get("/linkinfo/:roomId", roomLinkInfo);
