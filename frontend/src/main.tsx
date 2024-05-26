@@ -14,7 +14,10 @@ import RegistrationForm from './register.tsx'
 import Example from './contact_list.tsx'
 import ChatRoom from './chat.tsx'
 //import { CookiesProvider, useCookies } from 'react-cookie'
+import Cookies from 'js-cookie';
 import { Route, RouterProvider, createBrowserRouter , useLoaderData} from 'react-router-dom'
+import RoomForm from "./room_form.tsx"
+import Tester from './try_new_chat.jsx'
 
 import {
   useLocation,
@@ -41,7 +44,7 @@ const socket = io("ws://localhost:3000", {
   reconnectionDelayMax: 10000,
   transports: ['websocket']
 });
-
+Cookies.set('socketid', socket.id);
 socket.on("connect", () => {
   console.log("connected to backend");
 });
@@ -57,6 +60,10 @@ socket.on("connect_error", (error) => {
 });
 const router = createBrowserRouter([
   {
+    path: "/home",
+    element: <><NavScroll></NavScroll><HomeMenu></HomeMenu></>,
+  },
+  {
     path: "/",
     element: <NavScroll/>,
   },
@@ -68,6 +75,14 @@ const router = createBrowserRouter([
     path:"/room/:roomID",
     loader: ({ request, params }) => { return (params.roomID);},
     Component: withRouter(ChatRoom)
+  },
+  {
+    path: "/newroom",
+    element: <RoomForm></RoomForm>
+  },
+  {
+    path: "/tester/:roomID",
+    element: <><NavScroll></NavScroll><Tester></Tester></>
   }
 ]);
   console.log(document.cookie);

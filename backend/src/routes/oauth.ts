@@ -33,7 +33,7 @@ export const oauthGet = async (req: Request, res: Response) => {
 			{
 				//sameSite: "strict",
 				maxAge: 1000 * 60 * 60,
-				httpOnly: true,
+				httpOnly: false,
 				path: '/'
 			});
 		res.redirect(`http://localhost:5173/${user?.id}`);

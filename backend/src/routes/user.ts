@@ -2,6 +2,13 @@ import { Request, Response, Router } from "express";
 import { authMW } from "../middleware/auth.ts";
 import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
 
+export const userSrchId = async (req: Request, res: Response) => {
+	console.log(req.query.id);
+	console.log("TEST");
+	const user = await UserModel.findById(req.query.id);
+	console.log(user)
+	res.send(user);
+}
 export const userSearch = async (req: Request, res: Response) => {
 	console.log(req.query.username);
 	const username = req.query.username;
@@ -43,5 +50,6 @@ export const userInvite = async (req: Request, res: Response) => {
 export const userRouter = Router();
 userRouter.use(authMW);
 
+userRouter.get("/id", userSrchId);
 userRouter.get("/search", userSearch);
 userRouter.put("/invite/:userId/:roomId", userInvite);

@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { Button, CardFooter, Container, Row, Stack } from 'react-bootstrap';
 import { MessageBox } from "react-chat-elements";
-
+import Cookies from 'js-cookie';
 import Card from 'react-bootstrap/Card'
 import { CardBody, CardHeader } from 'react-bootstrap';
 import { Input } from 'react-chat-elements' 
@@ -9,7 +9,11 @@ import { useLoaderData, withRouter } from 'react-router-dom';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
 import RoomModel from '../../backend/src/models/room.ts'
-
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from 'react-query';
 
 class ChatRoom extends Component{
     input: string;
@@ -23,7 +27,31 @@ class ChatRoom extends Component{
         room_name: "test Room",
         id: this.props.router.params.roomID
     }
+    this.get_info();
     //this.input = "";
+  }
+  async get_info(){
+    //console.log(Cookies.get('Authorization'))
+    const { isPending, error, data } = useQuery({
+      queryKey: ['repoData'],
+      queryFn: () =>
+        fetch('http://localhost:3000/room/info/' + this.props.router.params.roomID, {
+  method: 'GET',
+  mode: 'cors',
+  headers: {"Authorization": Cookies.get('Authorization') },
+  credentials: 'include',
+
+}).then((res) =>
+          res.json(),
+        ),
+    })
+
+    if (isPending) return 'Loading...'
+
+    if (error) return 'An error has occurred: ' + error.message
+    console.log(data);
+  
+    
   }
   addMessage = (newMessage) => {
     this.setState((prevState) => ({
@@ -36,6 +64,7 @@ class ChatRoom extends Component{
 }
 
   render() {
+
     const {msgs} = this.state;
     return (
         <>

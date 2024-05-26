@@ -7,16 +7,17 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import ContactList from './contact_list';
 import { instanceOf } from 'prop-types';
-
-import { CookiesProvider, useCookies, Cookies, withCookies } from 'react-cookie'
+import Cookies from 'js-cookie';
+import { CookiesProvider, useCookies, withCookies } from 'react-cookie'
+import { redirect, useNavigate } from 'react-router-dom';
 const navigate = (url: string) => {
   window.location.href = url;
 }
 
 const auth = async () => {
   //useCookies(["user"]) 
-  const response = await fetch('http://127.0.0.1:3000/account/login',
-    { method: 'put' });
+  const response = await fetch('http://localhost:3000/account/login',
+    { method: 'POST' });
   const data = await response.json();
   //console.log(data)
   //alert(data.url) 
@@ -24,26 +25,22 @@ const auth = async () => {
 }
 
 class NavScroll extends Component {
-  static propTypes = {
-    cookies: instanceOf(Cookies).isRequired
-  };
     constructor(props) {
     super(props);
-    const {cookies} = props;
     this.state = {
-        logged_in: cookies.get('logged_in') || false,
-        user_name: cookies.get('user_name') || ""
+        authed: Cookies.get('Authorization') || 'None',
+        user_name:   ""
     };
   }
 
   async localauth() 
   {
     await auth();
-    alert("test");
-    const { cookies } = this.props;
+    console.log(Cookies.get('Authorization') )
+    //const { cookies } = this.props;
 
-    cookies.set('logged_in', true , { path: '/' });
-    this.setState({ logged_in: cookies.get('logged_in')});
+    //Cookies.set('logged_in', true );
+    //this.setState({ logged_in: Cookies.get('logged_in')});
   }
   render() {
     //this.setState({logged_in: this.props.logged_in});
@@ -53,8 +50,8 @@ class NavScroll extends Component {
       <Container fluid>
         <Navbar.Brand href="#">Rooms.Chat</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
-        {this.state.logged_in? (
-        <><ContactList></ContactList></>):(
+        {this.state.authed != "None"? (
+        <></>):(
             <><Button variant="outline-success" onClick={this.localauth }>Log In</Button> 
             <Button variant="outline-success" onClick={() => {auth()} }>Create Account</Button> 
             </>
@@ -68,9 +65,9 @@ class NavScroll extends Component {
           >
             
           </Nav>
-          {this.state.logged_in? ( 
+          {this.state.authed != "None" ? ( 
           
-          <><Button variant="outline-success">New Chat +</Button><Form className="d-flex">
+          <> <a href='newroom'><Button variant="outline-success">New Chat +</Button> </a><Form className="d-flex">
                             <Form.Control
                                 type="search"
                                 placeholder="Username"
