@@ -18,6 +18,7 @@ import Cookies from 'js-cookie';
 import { Route, RouterProvider, createBrowserRouter , useLoaderData} from 'react-router-dom'
 import RoomForm from "./room_form.tsx"
 import Tester from './try_new_chat.jsx'
+import AddContactModal from './add_contact.tsx'
 
 import {
   useLocation,
@@ -88,6 +89,11 @@ const router = createBrowserRouter([
   {
     path: "/invite/:inviteLink",
     element: <> <JoinModal></JoinModal></>
+  }
+  ,
+  {
+    path: "/addcontact/:userId",
+    element: <AddContactModal/>
   }
 ]);
   console.log(document.cookie);

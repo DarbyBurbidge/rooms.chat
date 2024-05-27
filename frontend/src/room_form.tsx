@@ -1,67 +1,66 @@
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { Button, Card, CardBody, Form, ListGroup, ListGroupItem } from 'react-bootstrap';
-import FloatingLabel from 'react-bootstrap';
-import { Component } from 'react';
+import React, { Component } from 'react';
+import { Container, Row, Button, Card, CardBody, Form } from 'react-bootstrap';
+import { fetch_contacts,  make_user_dict } from './api_function';
 
 class RoomForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            contacts: [],
+            userDict :{}
         };
     }
 
-    
+    async componentDidMount() {
+        try {
+            const contacts = await fetch_contacts();
+            const userDict = await make_user_dict(contacts);
+            this.setState({ contacts });
+            this.setState({ userDict });
+        } catch (error) {
+            console.error("Error fetching contacts:", error);
+        }
+    }
 
     handleSubmit = (event) => {
         event.preventDefault();
-        event.persist();
-        let doc = event.target;
-        //Array(doc.getElementsByClassName("form-check")).forEach(element => {
-            //console.log(element.get('value'));
-        //});
-        
         const formData = new FormData(event.target);
         console.log(formData);
-        //console.log(socket.id)
         // Handle form submission logic here
     };
 
     render() {
+        const { contacts, userDict } = this.state;
+
         return (
-    <Container >
-    
-<Card>
-    
-    <CardBody>
-    <Form onSubmit={this.handleSubmit}>
-        <Row>
-      <Button variant="primary" type="submit" >
-        Make new Chat Room
-      </Button>
-    </Row>
-    <Row>
-      <h2>Contacts:</h2>
-
-
-      {['contact1', 'contact2', 'contact3'].map((type) => (
-        <Form.Group id={type}>
-
-          <Form.Check // prettier-ignore
-            type='checkbox'
-            id={`default-${type}`}
-            label={`${type}`}
-          />
-        </Form.Group>        
-      ))}
-    </Row>
-    </Form>
-    </CardBody>
-    </Card>
-    </Container>
+            <Container>
+                <Card>
+                    <CardBody>
+                        <Form onSubmit={this.handleSubmit}>
+                            <Row>
+                                <Button variant="primary" type="submit">
+                                    Make new Chat Room
+                                </Button>
+                            </Row>
+                            <Row>
+                                <h2>Contacts:</h2>
+                                {contacts.map((contact) => (
+                                    <Form.Group key={contact} id={contact}>
+                                        <Form.Check
+                                            type='checkbox'
+                                            id={`default-${contact}`}
+                                            label={`${userDict[contact].given_name} ${userDict[contact].family_name}`}
+                                        />
+                                    </Form.Group>
+                                ))}
+                            </Row>
+                        </Form>
+                    </CardBody>
+                </Card>
+            </Container>
         );
     }
 }
 
 export default RoomForm;
+
