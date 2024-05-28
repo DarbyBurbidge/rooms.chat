@@ -7,6 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Cookies from 'js-cookie';
 import { withCookies } from 'react-cookie';
+import ContactList from './contact_list';
 
 const navigate = (url) => {
   window.location.href = url;
@@ -71,6 +72,7 @@ class NavScroll extends Component {
             </Nav>
             {this.state.authed !== "None" ? (
               <>
+                <ContactList></ContactList>
                 <a href='newroom'>
                   <Button variant="outline-success">New Chat +</Button>
                 </a>

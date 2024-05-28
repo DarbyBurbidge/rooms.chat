@@ -130,7 +130,8 @@ export const roomInfo = async (req: Request, res: Response) => {
 				creator: room?.creator,
 				admins: room?.admins,
 				users: room?.users,
-				messages: room?.messages
+				messages: room?.messages,
+				inviteUrl: room?.inviteUrl
 			}
 		});
 	} catch (err) {

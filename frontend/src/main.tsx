@@ -46,9 +46,9 @@ const socket = io("ws://localhost:3000", {
   reconnectionDelayMax: 10000,
   transports: ['websocket']
 });
-Cookies.set('socketid', socket.id);
 socket.on("connect", () => {
   console.log("connected to backend");
+  Cookies.set('socketid', socket.id);
 });
 
 socket.on("connect_error", (error) => {
@@ -75,12 +75,11 @@ const router = createBrowserRouter([
   },
   {
     path:"/room/:roomID",
-    loader: ({ request, params }) => { return (params.roomID);},
-    Component: withRouter(ChatRoom)
+    element: <><NavScroll></NavScroll><Tester></Tester></>
   },
   {
     path: "/newroom",
-    element: <RoomForm></RoomForm>
+    Component: withRouter(RoomForm)
   },
   {
     path: "/tester/:roomID",
@@ -96,7 +95,6 @@ const router = createBrowserRouter([
     element: <AddContactModal/>
   }
 ]);
-  console.log(document.cookie);
     //<RegistrationForm></RegistrationForm>
     //<ChatRoom></ChatRoom>
     //<CookiesProvider>

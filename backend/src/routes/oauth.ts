@@ -36,7 +36,7 @@ export const oauthGet = async (req: Request, res: Response) => {
 				httpOnly: false,
 				path: '/'
 			});
-		res.redirect(`http://localhost:5173/${user?.id}`);
+		res.redirect(`http://localhost:5173/home`);
 	} catch (err) {
 		console.error(err);
 	}

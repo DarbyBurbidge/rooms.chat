@@ -1,17 +1,31 @@
 import React, { Component } from 'react';
-import { Button, ListGroup } from 'react-bootstrap';
+import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { useState } from 'react';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-
+import { fetch_contacts,  make_user_dict } from './api_function';
 class ContactList extends Component {
 
 constructor(props) {
     super(props);
     this.state = {
+      contacts:[],
+      userDict:{},
         show:false,
-        name: "Members"
+        
     };
 }
+
+
+    async componentDidMount() {
+        try {
+            const contacts = await fetch_contacts();
+            const userDict = await make_user_dict(contacts);
+            this.setState({ contacts });
+            this.setState({ userDict });
+        } catch (error) {
+            console.error("Error fetching contacts:", error);
+        }
+    }
     setShow(val:bool ){
         this.setState({show:val});
     }
@@ -19,19 +33,26 @@ constructor(props) {
     handleShow = () => this.setShow(true);
     render(): React.ReactNode {
         
-  return (
+      const { contacts, userDict } = this.state;
+      return (
+
     <>
       <Button variant="primary" onClick={this.handleShow}>
-        Launch
+        Contacts
       </Button>
 
       <Offcanvas show={this.state.show} onHide={this.handleClose}>
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>{this.state.members}</Offcanvas.Title>
+          <Offcanvas.Title>Contacts</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          Some text as placeholder. In real life you can have the elements you
-          have chosen. Like, text, images, lists, etc.
+          <ListGroup>
+          {contacts.map((contact) => (
+            <a href={"#" + contact}><ListGroupItem>
+{`${userDict[contact].given_name} ${userDict[contact].family_name}`}
+            </ListGroupItem></a>
+            ))}
+            </ListGroup>
         </Offcanvas.Body>
       </Offcanvas>
     </>
@@ -40,40 +61,3 @@ constructor(props) {
 }
 
 export default ContactList;
-/*
-class SlideOutList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isOpen: false
-        };
-    }
-
-    toggleList = () => {
-        this.setState((prevState) => ({
-            isOpen: !prevState.isOpen
-        }));
-    };
-
-    render() {
-        const { isOpen } = this.state;
-
-        return (
-            <div className={`slide-out-list ${isOpen ? 'open' : ''}`}>
-                <Button onClick={this.toggleList}>
-                    {isOpen ? 'Close List' : 'Open List'}
-                </Button>
-                <ListGroup>
-                    <ListGroup.Item>Item 1</ListGroup.Item>
-                    <ListGroup.Item>Item 2</ListGroup.Item>
-                    <ListGroup.Item>Item 3</ListGroup.Item>
-                    <ListGroup.Item>Item 4</ListGroup.Item>
-                    <ListGroup.Item>Item 5</ListGroup.Item>
-                </ListGroup>
-            </div>
-        );
-    }
-}
-
-export default SlideOutList;
-*/

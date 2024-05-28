@@ -8,6 +8,16 @@ export async function fetch_contacts(){
     }).then(res => res.json());
     return data.contacts; 
 }
+export async function create_room(){
+    console.log(Cookies.get('socketid'))
+   const data = await fetch(`http://localhost:3000/room/create/${Cookies.get('socketid')}`, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { "Authorization": Cookies.get('Authorization') },
+        credentials: 'include',
+    }).then(res => res.json());
+    return data.room; 
+}
 
 export async function fetch_user_data(userId) {
     const data = await fetch(`http://localhost:3000/user/id?id=${userId}`, {
