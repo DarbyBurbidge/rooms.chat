@@ -1,15 +1,38 @@
 import { Request, Response, Router } from "express";
+import { io } from "../main.ts";
 import { authMW } from "../middleware/auth.ts";
-import { MessageModel, RoomModel, UserModel } from "../models/exports.ts";
+import { MessageModel, NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
+import { User } from "src/models/user.ts";
+import { Room } from "src/models/room.ts";
+import { DocumentType } from "@typegoose/typegoose";
+
+const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: string) => {
+	try {
+		const notification = await NotificationModel.create({ from: sender, message: `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`, type: "new message", url: `http://localhost:5173/tester/${room?.id}` })
+		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } });
+		io.to(user!.googleId).emit("new message", notification);
+	} catch (err) {
+		throw Error("Failed to spawn notification");
+	}
+
+}
+
 
 const messageCreate = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const roomId = req.params.roomId;
 		const content = req.body?.content;
-		const user = await UserModel.findOne({ googleId: usersub });
-		const message = await MessageModel.create({ sender: user?.id, content: content });
+		const sender = await UserModel.findOne({ googleId: usersub });
+		const message = await MessageModel.create({ sender: sender?.id, content: content });
 		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message.id } });
+		room?.users.forEach(async (user) => {
+			await sendNewMessageNotification(sender!, room!, user.id);
+		});
+		room?.admins.forEach(async (admin) => {
+			await sendNewMessageNotification(sender!, room!, admin.id);
+		});
+		await sendNewMessageNotification(sender!, room!, room?.creator.id)
 		res.send({
 			message: {
 				id: message?.id,

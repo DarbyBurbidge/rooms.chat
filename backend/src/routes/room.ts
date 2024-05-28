@@ -7,10 +7,11 @@ import { Socket } from "socket.io";
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
 		const base = encodeURI(randomUUID());
+		const roomName = req.body.name;
 		const url = base;
 		const usersub = res.locals.usersub;
 		const user = await UserModel.findOne({ googleId: usersub });
-		const room = await RoomModel.create({ creator: user?.id, admins: [], users: [], messages: [], inviteUrl: url });
+		const room = await RoomModel.create({ name: roomName, creator: user?.id, admins: [], users: [], messages: [], inviteUrl: url });
 		const userUpdated = await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: room } });
 		const io = req.app.get("io");
 		const socket: Socket = io.sockets.sockets.get(req.params.socketId);

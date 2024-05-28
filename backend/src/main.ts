@@ -64,6 +64,7 @@ io.on("connection", async (socket) => {
 		);
 		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: token, audience: process.env.CLIENT_ID });
 		console.log(ticket);
+		// NOTE: this is the users googleId
 		socket.join(ticket.getPayload()!.sub);
 	} catch (err) {
 		console.error(err)

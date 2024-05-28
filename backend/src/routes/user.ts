@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import { io } from "../main.ts";
 import { authMW } from "../middleware/auth.ts";
 import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
 
@@ -40,6 +41,7 @@ export const userInvite = async (req: Request, res: Response) => {
 		const inviteMessage = `${sender?.given_name} has invited you to chat!`;
 		const notification = await NotificationModel.create({ from: sender, message: inviteMessage, type: "invite", url: room?.inviteUrl });
 		const receiver = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } });
+		io.to(userId).emit("invite", notification);
 		res.send();
 	} catch (err) {
 		res.statusCode = 500;

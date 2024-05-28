@@ -10,6 +10,9 @@ export class Room {
 	@prop({ auto: true })
 	readonly _id: mongoose.Types.ObjectId;
 
+	@prop({ nullable: true })
+	name?: string;
+
 	@prop({ required: true, ref: () => User })
 	creator: Ref<User>;
 

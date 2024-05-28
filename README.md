@@ -28,6 +28,8 @@ other commands can be found in package.json
 
 Errors return as a 500 status Server Error
 
+On open, the backend links the client to the users googleId, then passes notifications to the user via that 'room.' 
+
 ### OAuth
 
 #### GET /oauth
@@ -49,7 +51,13 @@ uses current user to retrieve user account info and settings
 #### POST /room/create/:socketId
 takes the socketId from the client and joins the socket to the roomId
 adding it to the room
-```json
+```
+takes: {
+    "name": string
+}
+```
+
+```
 returns: {
     "room": {
     	roomCode: string
@@ -59,13 +67,13 @@ returns: {
 
 #### DELETE /room/delete/:roomId
 deletes a room that the user has created
-```json
+```
 returns Nothing
 ```
 
 #### GET /room/link/:roomId
 retreives an invite link for the given room
-```json
+```
 return: {
 	"inviteUrl": string
 }
@@ -74,7 +82,7 @@ return: {
 #### PUT /room/join/:socketId/:roomId
 joins the clients account to the room associated with the roomId
 then adds the clients socket to the socket room instance
-```json
+```
 returns: Nothing
 ```
 
@@ -82,7 +90,7 @@ returns: Nothing
 removes the user from the chatroom
 disconnects the client socket from the socket room instance
 returns the room so the room data can be updated on the client side
-```json
+```
 returns: {
 	"room": {
         id,
@@ -93,7 +101,7 @@ returns: {
 
 #### GET /room/list/
 retrieves a list of rooms accessible by the current user
-```json
+```
 returns: {
     "rooms": Room[]
 }
@@ -101,7 +109,7 @@ returns: {
 
 #### GET /room/info/:roomId
 shows details about a room such as who the creator/admins are
-```json
+```
 returns: {
 	"room": {
 		id: string,
@@ -119,7 +127,7 @@ returns: {
 searches users by username 
 1P
 1P
-```json
+```
 returns: {
 	"users": User[]
 }
@@ -133,7 +141,7 @@ returns: Nothing
 
 #### GET /contact/list
 retrieves the list of contacts for the current user
-```json
+```
 returns: {
 	contacts: User[]
 }
@@ -141,7 +149,7 @@ returns: {
 
 #### PUT /contact/add/:userId
 adds a user to the current users list of contacts
-```json
+```
 returns: {
 	contacts: User[]
 }
@@ -154,24 +162,24 @@ removes a user from current users list of contacts
 Notifications are generated on by the backend by other events and endpoints, that's why there is no create
 #### PUT notification/read/:noteId
 marks a notification with the given noteId as read
-```json
+```
 returns: Nothing
 ```
 
 #### DELETE notification/delete/:noteId
 deletes a notification with the given Id
-```json
+```
 returns: Nothing
 ```
 
 #### POST /message/create/:roomId
 reads message content from the req body, then broadcasts that message on behalf of the user
-```json
+```
 takes: {
 	"content": string
 }
 ```
-```json
+```
 returns: {
 	message: {
 		id: string,
@@ -186,12 +194,12 @@ returns: {
 
 #### PUT /message/edit/:messageId
 takes a content string from the request body and modifies the message in the database. Also broadcasts the update to other clients in the room
-```json
+```
 takes: {
 	content: string
 }
 ```
-```json
+```
 returns: {
 	message: {
 		id: string,
@@ -206,6 +214,6 @@ returns: {
 
 #### DELETE /message/delete/:messageId 
 deletes the message from the database
-```json
+```
 returns: Nothing
 ```
