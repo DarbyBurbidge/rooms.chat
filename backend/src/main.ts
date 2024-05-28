@@ -3,6 +3,7 @@ import express, { json } from "express";
 import cors from "cors";
 import mongoose from "mongoose"
 import { Server } from "socket.io";
+import cookie from "cookie";
 import { config } from "dotenv";
 import { OAuth2Client, LoginTicket } from "google-auth-library";
 import { accountRouter } from "./routes/account.ts";
@@ -52,10 +53,9 @@ io.on("connection", async (socket) => {
 		socket.rooms.forEach((room) => {
 			console.log(`room is: ${room}`);
 		});
-		const cookie = socket.client.request.headers.cookie;
-		console.log(cookie)
-		const token = decodeURI(cookie!).split('Authorization=Bearer ')[1];
-		console.log(`authToken: ${cookie}`);
+		const cookies = cookie.parse(socket.client.request.headers.cookie!);
+		console.log(cookies)
+		const token = decodeURI(cookies.Authorization).split(' ')[1]!
 		const redirectUrl = 'http://localhost:3000/oauth';
 		const oAuth2Client = new OAuth2Client(
 			process.env.CLIENT_ID,
@@ -63,9 +63,10 @@ io.on("connection", async (socket) => {
 			redirectUrl
 		);
 		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: token, audience: process.env.CLIENT_ID });
-		console.log(ticket);
+		const googleId = ticket.getPayload()!.sub;
 		// NOTE: this is the users googleId
-		socket.join(ticket.getPayload()!.sub);
+		socket.join(googleId);
+		socket.emit("join", googleId);
 	} catch (err) {
 		console.error(err)
 		socket.emit("Could not link socket to user")
