@@ -13,7 +13,8 @@ import {
   import Card from 'react-bootstrap/Card';
   import { CardBody, CardHeader } from 'react-bootstrap';
   import * as Icon from 'react-bootstrap-icons';
-  
+  import io from "socket.io-client";
+  import {socket} from "./main" 
   const queryClient = new QueryClient();
   
   async function delete_message(roomID) {
@@ -41,7 +42,7 @@ import {
           credentials: 'include',
           body: JSON.stringify({ content: text }),
       });
-      window.location.reload();  // Refresh the whole page after sending a message
+      //window.location.reload();  // Refresh the whole page after sending a message
   }
   
   async function fetch_user_data(userId) {
@@ -83,8 +84,8 @@ import {
           </QueryClientProvider>
       );
   }
-  
   function Example() {
+    
       const { roomID } = useParams();
       const [message, setMessage] = useState('');
       const [userDict, setUserDict] = useState({});

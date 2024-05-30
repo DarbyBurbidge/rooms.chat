@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 import { make_user_dict } from './api_function';
 import { send } from 'process';
 import  Image  from 'react-bootstrap/Image';
+import { Button } from 'react-bootstrap';
+        
 
 async function current_user_data() {
   const data = await fetch(`http://localhost:3000/account/info`, {
@@ -52,6 +54,7 @@ class RoomToReact extends Component {
           as="li"
           className="d-flex justify-content-between align-items-start"
         >
+        <Button>Delete Room</Button>
           <div className="ms-2 me-auto">
             <div className="fw-bold">{room_name}</div>
             {last_msg.content === "none" ? null : (

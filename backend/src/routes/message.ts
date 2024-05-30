@@ -27,12 +27,12 @@ const messageCreate = async (req: Request, res: Response) => {
 		const message = await MessageModel.create({ sender: sender?.id, content: content });
 		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message.id } });
 		room?.users.forEach(async (user) => {
-			await sendNewMessageNotification(sender!, room!, user.id);
+			await sendNewMessageNotification(sender!, room!, user._id);
 		});
 		room?.admins.forEach(async (admin) => {
-			await sendNewMessageNotification(sender!, room!, admin.id);
+			await sendNewMessageNotification(sender!, room!, admin._id);
 		});
-		await sendNewMessageNotification(sender!, room!, room?.creator.id)
+		await sendNewMessageNotification(sender!, room!, room?.creator._id)
 		res.send({
 			message: {
 				id: message?.id,

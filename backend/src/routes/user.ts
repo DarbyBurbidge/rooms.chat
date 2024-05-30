@@ -5,7 +5,6 @@ import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
 
 export const userSrchId = async (req: Request, res: Response) => {
 	console.log(req.query.id);
-	console.log("TEST");
 	const user = await UserModel.findById(req.query.id);
 	console.log(user)
 	res.send(user);

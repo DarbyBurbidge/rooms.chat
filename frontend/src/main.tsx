@@ -1,31 +1,26 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import Login from './login.tsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import Login from './login.tsx';
+import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { io } from "socket.io-client"
-
-import "react-chat-elements/dist/main.css"
-import NavScroll from './nav.tsx'
-import HomeMenu from './home.tsx'
-import SlideOutList from './contact_list.tsx'
-import RegistrationForm from './register.tsx'
-import Example from './contact_list.tsx'
-import ChatRoom from './chat.tsx'
-//import { CookiesProvider, useCookies } from 'react-cookie'
-import Cookies from 'js-cookie';
-import { Route, RouterProvider, createBrowserRouter , useLoaderData} from 'react-router-dom'
-import RoomForm from "./room_form.tsx"
-import Tester from './try_new_chat.jsx'
-import AddContactModal from './add_contact.tsx'
+import { io } from 'socket.io-client';
+import 'react-chat-elements/dist/main.css';
+import NavScroll from './nav.tsx';
+import HomeMenu from './home.tsx';
+import RoomForm from './room_form.tsx';
+import Tester from './try_new_chat.jsx';
+import JoinModal from './join_room.tsx';
+import AddContactModal from './add_contact.tsx';
+import AccountPage from './my_account.tsx';
+import { RouterProvider, createBrowserRouter, Route } from 'react-router-dom';
+import AuthWrapper from './authwrapper'; // Import the AuthWrapper
 
 import {
   useLocation,
   useNavigate,
   useParams,
-} from "react-router-dom";
-import JoinModal from './join_room.tsx'
+} from 'react-router-dom';
 
 function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -42,16 +37,24 @@ function withRouter(Component) {
 
   return ComponentWithRouterProp;
 }
-const socket = io("ws://localhost:3000", {
+
+export const socket = io('ws://localhost:3000', {
   reconnectionDelayMax: 10000,
-  transports: ['websocket']
+  transports: ['websocket'],
 });
-socket.on("connect", () => {
-  console.log("connected to backend");
+socket.on('connect', () => {
+  console.log('connected to backend');
   Cookies.set('socketid', socket.id);
 });
 
-socket.on("connect_error", (error) => {
+socket.on('join', (arg) => {
+  console.log('join received!'); // world
+  console.log(arg); // world
+});
+socket.on('new message', (arg) => {
+  console.log('Message received!'); // world
+});
+socket.on('connect_error', (error) => {
   if (socket.active) {
     // temporary failure, the socket will automatically try to reconnect
   } else {
@@ -60,49 +63,76 @@ socket.on("connect_error", (error) => {
     console.log(error.message);
   }
 });
+
 const router = createBrowserRouter([
   {
-    path: "/home",
-    element: <><NavScroll></NavScroll><HomeMenu></HomeMenu></>,
+    path: '/',
+    element: <NavScroll />,
   },
   {
-    path: "/",
-    element: <NavScroll/>,
+    path: '/home',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <NavScroll />
+        <HomeMenu />
+      </AuthWrapper>
+    ),
   },
   {
-    path:"/login",
-    element: <Login></Login>
+    path: '/login',
+    element: <NavScroll></NavScroll>
   },
   {
-    path:"/room/:roomID",
-    element: <><NavScroll></NavScroll><Tester></Tester></>
+    path: '/room/:roomID',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <NavScroll />
+        <Tester />
+      </AuthWrapper>
+    ),
   },
   {
-    path: "/newroom",
-    Component: withRouter(RoomForm)
+    path: '/newroom',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        {withRouter(RoomForm)}
+      </AuthWrapper>
+    ),
   },
   {
-    path: "/tester/:roomID",
-    element: <><NavScroll></NavScroll><Tester></Tester></>
+    path: '/tester/:roomID',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <NavScroll />
+        <Tester />
+      </AuthWrapper>
+    ),
   },
   {
-    path: "/invite/:inviteLink",
-    element: <> <JoinModal></JoinModal></>
-  }
-  ,
+    path: '/invite/:inviteLink',
+    element: <JoinModal />,
+  },
   {
-    path: "/addcontact/:userId",
-    element: <AddContactModal/>
-  }
+    path: '/addcontact/:userId',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <AddContactModal />
+      </AuthWrapper>
+    ),
+  },
+  {
+    path: '/myaccount',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <AccountPage />
+      </AuthWrapper>
+    ),
+  },
 ]);
-    //<RegistrationForm></RegistrationForm>
-    //<ChatRoom></ChatRoom>
-    //<CookiesProvider>
 
-    //</CookiesProvider>
-<Route path="chat/:id" component={ChatRoom}/>
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-     <RouterProvider router={router} />
+    <RouterProvider router={router} />
   </React.StrictMode>,
-)
+);
+
