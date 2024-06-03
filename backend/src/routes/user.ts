@@ -1,7 +1,8 @@
 import { Request, Response, Router } from "express";
-import { io } from "../main.ts";
 import { authMW } from "../middleware/auth.ts";
-import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
+import { resolveUserInvite, resolveUserSrch } from "../resolvers/user.ts";
+import { UserModel } from "../models/exports.ts";
+import { io } from "../main.ts";
 
 export const userSrchId = async (req: Request, res: Response) => {
 	console.log(req.query.id);
@@ -10,39 +11,25 @@ export const userSrchId = async (req: Request, res: Response) => {
 	res.send(user);
 }
 export const userSearch = async (req: Request, res: Response) => {
-	console.log(req.query.username);
-	const username = req.query.username;
-	const users = await UserModel.find({
-		$or: [
-			{
-				given_name: {
-					$regex: username,
-					$options: "i"
-				}
-			}, {
-				family_name: {
-					$regex: username,
-					$options: "i"
-				}
-			}
-		]
-	});
+	const username = req.query.username as string;
+	const names = username.split(' ');
+	console.log(names)
+	const users = await resolveUserSrch(names);
 	console.log(users)
 	res.send({ "users": users });
 };
 
 export const userInvite = async (req: Request, res: Response) => {
 	try {
-		const userId = req.params.userId;
+		const receiverId = req.params.userId;
 		const roomId = req.params.roomId;
-		const sender = await UserModel.findOne({ googleId: res.locals.usersub });
-		const room = await RoomModel.findById(roomId);
-		const inviteMessage = `${sender?.given_name} has invited you to chat!`;
-		const notification = await NotificationModel.create({ from: sender, message: inviteMessage, type: "invite", url: room?.inviteUrl });
-		const receiver = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } });
-		io.to(userId).emit("invite", notification);
+		const googleId = res.locals.usersub;
+		const notification = await resolveUserInvite(receiverId, roomId, googleId);
+		console.error(notification)
+		io.to(receiverId).emit("invite", notification);
 		res.send();
 	} catch (err) {
+		console.error(err)
 		res.statusCode = 500;
 		res.send();
 	}

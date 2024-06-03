@@ -20,7 +20,7 @@ export const app = express();
 const port = 3000;
 const server = createServer(app);
 export const io = new Server(server);
-const db = mongoose.connection;
+export const db = mongoose.connection;
 const corsOptions = {
 	origin: ['http://localhost:5173', 'http://localhost'],
 	transports: ['websocket', 'polling'],

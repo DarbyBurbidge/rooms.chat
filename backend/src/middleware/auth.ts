@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { OAuth2Client } from "google-auth-library";
+import { LoginTicket, OAuth2Client } from "google-auth-library";
 
 export const authMW = async (req: Request, res: Response, next: NextFunction) => {
 	const cookie = req.headers['authorization'];
+	console.log(req.headers)
 	try {
 		const token = decodeURI(cookie!).split(' ')[1];
 		console.log(`authToken: ${cookie}`);
@@ -14,7 +15,7 @@ export const authMW = async (req: Request, res: Response, next: NextFunction) =>
 		);
 		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: token, audience: process.env.CLIENT_ID });
 		console.log(ticket);
-		res.locals.usersub = ticket.getPayload().sub;
+		res.locals.usersub = ticket.getPayload()!.sub;
 		next();
 	} catch (err) {
 		if (!cookie) {

@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { OAuth2Client } from "google-auth-library";
+import { LoginTicket, OAuth2Client } from "google-auth-library";
 import { UserModel } from "../models/exports.ts";
 
 export const oauthGet = async (req: Request, res: Response) => {
@@ -12,19 +12,19 @@ export const oauthGet = async (req: Request, res: Response) => {
 			process.env.CLIENT_SECRET,
 			redirectUrl
 		);
-		const response = await oAuth2Client.getToken(code);
-		await oAuth2Client.setCredentials(response.tokens);
+		const response = await oAuth2Client.getToken(code!.toString());
+		await oAuth2Client.setCredentials(response!.tokens);
 		console.log('Tokens acquired');
 		const userCred = oAuth2Client.credentials;
 		console.log('credentials', userCred);
 
-		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: userCred.id_token, audience: process.env.CLIENT_ID });
+		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: userCred.id_token!, audience: process.env.CLIENT_ID });
 		const payload = ticket.getPayload();
 		console.log(ticket);
 
-		let user = await UserModel.findOne({ googleId: payload.sub });
+		let user = await UserModel.findOne({ googleId: payload!.sub });
 		if (!user) {
-			user = await UserModel.create({ googleId: payload.sub, family_name: payload.family_name, given_name: payload.given_name, imageUrl: payload.picture });
+			user = await UserModel.create({ googleId: payload!.sub, family_name: payload!.family_name, given_name: payload!.given_name, imageUrl: payload!.picture });
 			console.log('user added:', user);
 		}
 		console.log('user found', user);

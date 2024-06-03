@@ -25,7 +25,7 @@ export const accountLogin = async (req: Request, res: Response) => {
 	res.json({ url: authorizeUrl });
 };
 
-export const accountDelete = async (req: Request, res: Response) => {
+export const accountDelete = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		await UserModel.findOneAndDelete({ googleId: usersub });
@@ -36,7 +36,7 @@ export const accountDelete = async (req: Request, res: Response) => {
 	}
 };
 
-export const accountInfo = async (req: Request, res: Response) => {
+export const accountInfo = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const account = await UserModel.findOne({ googleId: usersub });

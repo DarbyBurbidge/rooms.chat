@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { authMW } from "../middleware/auth.ts";
 import { UserModel } from "../models/exports.ts";
 
-export const contactList = async (req: Request, res: Response) => {
+export const contactList = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const user = await UserModel.findOne({ googleId: usersub })

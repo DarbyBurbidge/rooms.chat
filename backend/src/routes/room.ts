@@ -12,7 +12,7 @@ export const roomCreate = async (req: Request, res: Response) => {
 		const usersub = res.locals.usersub;
 		const user = await UserModel.findOne({ googleId: usersub });
 		const room = await RoomModel.create({ name: roomName, creator: user?.id, admins: [], users: [], messages: [], inviteUrl: url });
-		const userUpdated = await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: room } });
+		await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: room } });
 		const io = req.app.get("io");
 		const socket: Socket = io.sockets.sockets.get(req.params.socketId);
 		socket.join(room.id)
@@ -109,7 +109,7 @@ export const roomLeave = async (req: Request, res: Response) => {
 	}
 };
 
-export const roomList = async (req: Request, res: Response) => {
+export const roomList = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const user = await UserModel.findOne({ googleId: usersub }).populate('rooms');
