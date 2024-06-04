@@ -75,3 +75,28 @@ export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
 		await session.endSession();
 	}
 }
+
+
+export const resolveRoomLeave = async (roomId: string, googleId: string) => {
+	const session = await db.startSession();
+	session.startTransaction();
+	try {
+		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $pull: { rooms: roomId } });
+		let room = await RoomModel.findById(roomId);
+		if (room?.creator.equals(user?.id)) {
+			await resolveRoomDelete(roomId);
+		} else if (room?.admins.includes(user?.id)) {
+			room = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: user?.id } });
+		} else {
+			room = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: user?.id } });
+		}
+		await session.commitTransaction();
+		return room;
+	} catch (err) {
+		await session.abortTransaction();
+		throw err;
+	} finally {
+		await session.endSession();
+	}
+}
+

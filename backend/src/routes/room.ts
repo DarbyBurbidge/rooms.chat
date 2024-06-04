@@ -2,9 +2,8 @@ import { Request, Response, Router } from "express";
 import { authMW } from "../middleware/auth.ts";
 import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
-import { Socket } from "socket.io";
-import { io } from "../main.ts";
-import { resolveRoomCreate, resolveRoomDelete, resolveRoomJoin, resolveRoomLink } from "../resolvers/room.ts";
+import { addUserToRoom, removeUserFromRoom } from "../utils/io.ts";
+import { resolveRoomCreate, resolveRoomDelete, resolveRoomJoin, resolveRoomLeave, resolveRoomLink } from "../resolvers/room.ts";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
@@ -13,9 +12,7 @@ export const roomCreate = async (req: Request, res: Response) => {
 		const url = base;
 		const usersub = res.locals.usersub;
 		const roomId = await resolveRoomCreate(usersub, roomName, url);
-		const sockets = await io.in(usersub).fetchSockets();
-		const socket = sockets[0];
-		socket.join(roomId);
+		await addUserToRoom(usersub, roomId);
 		res.send({
 			"room": {
 				roomCode: roomId
@@ -61,9 +58,7 @@ export const roomJoin = async (req: Request, res: Response) => {
 		const inviteUrl = req.params.inviteUrl;
 		const usersub = res.locals.usersub;
 		const roomId = await resolveRoomJoin(inviteUrl, usersub);
-		const sockets = await io.in(usersub).fetchSockets();
-		const socket = sockets[0];
-		socket.join(roomId);
+		await addUserToRoom(usersub, roomId);
 		res.send();
 	} catch (err) {
 		console.error(err);
@@ -77,17 +72,8 @@ export const roomLeave = async (req: Request, res: Response) => {
 		const roomId = req.params.roomId;
 		const socketId = req.params.socketId;
 		const usersub = res.locals.usersub;
-		const socket: Socket = req.app.get("io").sockets.sockets.get(socketId);
-		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { $pull: { rooms: roomId } });
-		let room = await RoomModel.findById(roomId);
-		if (user?.id == room?.creator.id) {
-			res.redirect(`http://localhost:3000/room/delete/${socketId}/${roomId}`);
-		} else if (room?.admins.includes(user?.id)) {
-			room = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: user?.id } });
-		} else {
-			room = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: user?.id } });
-		}
-		socket.leave(roomId);
+		const room = await resolveRoomLeave(roomId, usersub);
+		removeUserFromRoom(usersub, room?.id);
 		res.send({
 			"room": {
 				id: room?.id,
@@ -168,8 +154,8 @@ roomRouter.use(authMW);
 roomRouter.post("/create/", roomCreate);
 roomRouter.delete("/delete/:roomId", roomDelete);
 roomRouter.get("/link/:roomId", roomLink);
-roomRouter.put("/join/:socketId/:inviteUrl", roomJoin);
-roomRouter.put("/leave/:socketId/:roomId", roomLeave);
+roomRouter.put("/join/:inviteUrl", roomJoin);
+roomRouter.put("/leave/:roomId", roomLeave);
 roomRouter.get("/list", roomList);
 roomRouter.get("/info/:roomId", roomInfo);
 roomRouter.get("/linkinfo/:roomId", roomLinkInfo);
