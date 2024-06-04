@@ -4,7 +4,7 @@ import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
 import { Socket } from "socket.io";
 import { io } from "../main.ts";
-import { resolveRoomCreate } from "../resolvers/room.ts";
+import { resolveRoomCreate, resolveRoomDelete } from "../resolvers/room.ts";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
@@ -33,8 +33,7 @@ export const roomCreate = async (req: Request, res: Response) => {
 export const roomDelete = async (req: Request, res: Response) => {
 	try {
 		const roomId = req.params.roomId;
-		await UserModel.updateMany({ rooms: roomId }, { $pull: { rooms: roomId } })
-		await RoomModel.findByIdAndDelete(roomId);
+		await resolveRoomDelete(roomId);
 		res.send();
 	} catch (err) {
 		console.error(err);

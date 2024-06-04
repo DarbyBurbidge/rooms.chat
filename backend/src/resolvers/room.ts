@@ -31,3 +31,18 @@ export const resolveRoomCreate = async (googleId: string, roomName: string, url:
 	}
 }
 
+
+export const resolveRoomDelete = async (roomId: string) => {
+	const session = await db.startSession();
+	session.startTransaction();
+	try {
+		await UserModel.updateMany({ rooms: roomId }, { $pull: { rooms: roomId } })
+		await RoomModel.findByIdAndDelete(roomId);
+		await session.commitTransaction();
+		return
+	} catch (err) {
+		await session.abortTransaction();
+	} finally {
+		await session.endSession();
+	}
+}
