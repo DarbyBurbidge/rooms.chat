@@ -50,7 +50,7 @@ def deauthed_url_test(test_url):
 
 
 if __name__ == "__main__":
-    #print(view_room_test(id = "665a719f6a668ea08588689a", expected_result="Max's Actual Room"))
-    #print(deauthed_url_test("""http://localhost:5173/tester/1"""))
-    #print(deauthed_url_test("""http://localhost:5173/home"""))
+    print(view_room_test(id = "665a719f6a668ea08588689a", expected_result="Max's Actual Room"))
+    print(deauthed_url_test("""http://localhost:5173/tester/1"""))
+    print(deauthed_url_test("""http://localhost:5173/home"""))
     print(view_room_invite_test(link = "ad3e7bb1-bc09-42c6-9215-2195b703bb63", expected_result="Max's Actual Room"))

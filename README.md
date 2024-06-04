@@ -16,11 +16,19 @@ yarn run dev
 ```
 other commands can be found in package.json
 
-### frontend
+### Frontend Installation
 ```sh
 cd frontend
 yarn install
 yarn run dev
+```
+### Frontend Testing Installation
+```
+cd frontend/frontEndTests
+```
+It is best practice to use a virtualenv 
+```
+pip install -r requirements.txt
 ```
 other commands can be found in package.json
 
