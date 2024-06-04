@@ -4,7 +4,7 @@ import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
 import { Socket } from "socket.io";
 import { io } from "../main.ts";
-import { resolveRoomCreate, resolveRoomDelete } from "../resolvers/room.ts";
+import { resolveRoomCreate, resolveRoomDelete, resolveRoomJoin, resolveRoomLink } from "../resolvers/room.ts";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
@@ -15,9 +15,7 @@ export const roomCreate = async (req: Request, res: Response) => {
 		const roomId = await resolveRoomCreate(usersub, roomName, url);
 		const sockets = await io.in(usersub).fetchSockets();
 		const socket = sockets[0];
-		socket.join(
-			roomId)
-		console.log(socket.rooms)
+		socket.join(roomId);
 		res.send({
 			"room": {
 				roomCode: roomId
@@ -46,9 +44,9 @@ export const roomDelete = async (req: Request, res: Response) => {
 export const roomLink = async (req: Request, res: Response) => {
 	try {
 		const roomId = req.params.roomId;
-		const room = await RoomModel.findById(roomId);
+		const inviteUrl = await resolveRoomLink(roomId);
 		res.send({
-			"inviteUrl": room?.inviteUrl
+			"inviteUrl": inviteUrl
 		});
 	} catch (err) {
 		console.error(err);
@@ -60,15 +58,12 @@ export const roomLink = async (req: Request, res: Response) => {
 
 export const roomJoin = async (req: Request, res: Response) => {
 	try {
-		const socketId = req.params.socketId;
 		const inviteUrl = req.params.inviteUrl;
 		const usersub = res.locals.usersub;
-		//const socket = req.app.get("io").socket.sockets.get(socketId);
-		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
-		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: preRoom?.id } });
-		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } });
-		console.log("NO ERROR")
-		//socket.join(room?.id);
+		const roomId = await resolveRoomJoin(inviteUrl, usersub);
+		const sockets = await io.in(usersub).fetchSockets();
+		const socket = sockets[0];
+		socket.join(roomId);
 		res.send();
 	} catch (err) {
 		console.error(err);

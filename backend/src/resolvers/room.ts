@@ -42,6 +42,35 @@ export const resolveRoomDelete = async (roomId: string) => {
 		return
 	} catch (err) {
 		await session.abortTransaction();
+		throw err;
+	} finally {
+		await session.endSession();
+	}
+}
+
+
+export const resolveRoomLink = async (roomId: string) => {
+	try {
+		const room = await RoomModel.findById(roomId);
+		return room?.inviteUrl;
+	} catch (err) {
+		throw err;
+	}
+}
+
+
+export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
+	const session = await db.startSession();
+	session.startTransaction();
+	try {
+		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
+		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $push: { rooms: preRoom?.id } });
+		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } });
+		await session.commitTransaction();
+		return room?.id;
+	} catch (err) {
+		await session.abortTransaction();
+		throw err;
 	} finally {
 		await session.endSession();
 	}
