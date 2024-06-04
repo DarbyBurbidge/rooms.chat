@@ -3,7 +3,7 @@ import { authMW } from "../middleware/auth.ts";
 import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
 import { addUserToRoom, removeUserFromRoom } from "../utils/io.ts";
-import { resolveRoomCreate, resolveRoomDelete, resolveRoomJoin, resolveRoomLeave, resolveRoomLink } from "../resolvers/room.ts";
+import { resolveRoomCreate, resolveRoomDelete, resolveRoomInfo, resolveRoomJoin, resolveRoomLeave, resolveRoomLink, resolveRoomLinkInfo, resolveRoomList } from "../resolvers/room.ts";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
@@ -73,7 +73,7 @@ export const roomLeave = async (req: Request, res: Response) => {
 		const socketId = req.params.socketId;
 		const usersub = res.locals.usersub;
 		const room = await resolveRoomLeave(roomId, usersub);
-		removeUserFromRoom(usersub, room?.id);
+		await removeUserFromRoom(usersub, room?.id);
 		res.send({
 			"room": {
 				id: room?.id,
@@ -93,8 +93,8 @@ export const roomLeave = async (req: Request, res: Response) => {
 export const roomList = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
-		const user = await UserModel.findOne({ googleId: usersub }).populate('rooms');
-		res.json({ "rooms": user?.rooms }).send();
+		const rooms = await resolveRoomList(usersub);
+		res.json({ "rooms": rooms }).send();
 	} catch (err) {
 		console.error(err);
 		res.statusCode = 500;
@@ -106,7 +106,7 @@ export const roomList = async (_: Request, res: Response) => {
 export const roomInfo = async (req: Request, res: Response) => {
 	try {
 		const roomId = req.params.roomId;
-		const room = await RoomModel.findOne({ _id: roomId }).populate('creator').populate('admins').populate('users').populate('messages');
+		const room = await resolveRoomInfo(roomId);
 		res.send({
 			"room": {
 				id: room?.id,
@@ -129,7 +129,7 @@ export const roomLinkInfo = async (req: Request, res: Response) => {
 	try {
 		const inviteUrl = req.params.roomId;
 		console.log(inviteUrl)
-		const room = await RoomModel.findOne({ inviteUrl: inviteUrl }).populate('creator').populate('admins').populate('users').populate('messages');
+		const room = await resolveRoomLinkInfo(inviteUrl);
 		res.send({
 			"room": {
 				id: room?.id,

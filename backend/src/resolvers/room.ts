@@ -100,3 +100,32 @@ export const resolveRoomLeave = async (roomId: string, googleId: string) => {
 	}
 }
 
+
+export const resolveRoomList = async (googleId: string) => {
+	try {
+		const user = await UserModel.findOne({ googleId: googleId }).populate('rooms');
+		return user?.rooms;
+	} catch (err) {
+		throw err;
+	}
+}
+
+
+export const resolveRoomInfo = async (roomId: string) => {
+	try {
+		const room = await RoomModel.findOne({ _id: roomId }).populate('creator').populate('admins').populate('users').populate('messages');
+		return room;
+	} catch (err) {
+		throw err;
+	}
+}
+
+
+export const resolveRoomLinkInfo = async (inviteUrl: string) => {
+	try {
+		const room = await RoomModel.findOne({ inviteUrl: inviteUrl }).populate('creator').populate('admins').populate('users').populate('messages');
+		return room;
+	} catch (err) {
+		throw err;
+	}
+}
