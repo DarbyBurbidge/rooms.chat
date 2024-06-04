@@ -3,6 +3,8 @@ import { authMW } from "../middleware/auth.ts";
 import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
 import { Socket } from "socket.io";
+import { io } from "../main.ts";
+import { resolveRoomCreate } from "../resolvers/room.ts";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {
@@ -10,16 +12,15 @@ export const roomCreate = async (req: Request, res: Response) => {
 		const roomName = req.body.name;
 		const url = base;
 		const usersub = res.locals.usersub;
-		const user = await UserModel.findOne({ googleId: usersub });
-		const room = await RoomModel.create({ name: roomName, creator: user?.id, admins: [], users: [], messages: [], inviteUrl: url });
-		await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: room } });
-		const io = req.app.get("io");
-		const socket: Socket = io.sockets.sockets.get(req.params.socketId);
-		socket.join(room.id)
+		const roomId = await resolveRoomCreate(usersub, roomName, url);
+		const sockets = await io.in(usersub).fetchSockets();
+		const socket = sockets[0];
+		socket.join(
+			roomId)
 		console.log(socket.rooms)
 		res.send({
 			"room": {
-				roomCode: room.id
+				roomCode: roomId
 			}
 		});
 	}
@@ -170,7 +171,7 @@ export const roomLinkInfo = async (req: Request, res: Response) => {
 export const roomRouter = Router();
 roomRouter.use(authMW);
 
-roomRouter.post("/create/:socketId", roomCreate);
+roomRouter.post("/create/", roomCreate);
 roomRouter.delete("/delete/:roomId", roomDelete);
 roomRouter.get("/link/:roomId", roomLink);
 roomRouter.put("/join/:socketId/:inviteUrl", roomJoin);

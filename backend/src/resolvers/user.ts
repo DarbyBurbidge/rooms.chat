@@ -32,13 +32,12 @@ export const resolveUserSrch = async (names: string[]) => {
 export const resolveUserInvite = async (userId: string, roomId: string, googleId: string) => {
 	const session = await db.startSession();
 	session.startTransaction();
-	let notification;
 	try {
 		const sender = await UserModel.findOne({ googleId: googleId });
 		const room = await RoomModel.findById(roomId);
 		console.log(userId, roomId, googleId)
 		const inviteMessage = `${sender?.given_name} has invited you to chat!`;
-		notification = await NotificationModel.create([{
+		const notification = await NotificationModel.create([{
 			from: sender,
 			message: inviteMessage,
 			type: "invite",
@@ -51,7 +50,6 @@ export const resolveUserInvite = async (userId: string, roomId: string, googleId
 		await session.commitTransaction();
 		return notification;
 	} catch (err) {
-		console.error("Could not resolve user invite");
 		await session.abortTransaction();
 		throw err;
 	}
