@@ -1,0 +1,1 @@
+module.exports {} //coment this if you ts-node to start complaining again 

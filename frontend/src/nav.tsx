@@ -100,6 +100,7 @@ class NavScroll extends Component {
                     </Dropdown.Menu>
                   </Dropdown>
                 )}
+          <Button variant="outline-danger" onClick={() => {Cookies.remove("Authorization"); window.location.href = "/login"}}>Log Out</Button>
               </>
             ) : (<></>)}
           </Navbar.Collapse>

@@ -15,7 +15,8 @@ import AddContactModal from './add_contact.tsx';
 import AccountPage from './my_account.tsx';
 import { RouterProvider, createBrowserRouter, Route } from 'react-router-dom';
 import AuthWrapper from './authwrapper'; // Import the AuthWrapper
-
+import AdminPanel from "./room_admin_panel.jsx"
+import  Cookies  from 'js-cookie';
 import {
   useLocation,
   useNavigate,
@@ -52,7 +53,8 @@ socket.on('join', (arg) => {
   console.log(arg); // world
 });
 socket.on('new message', (arg) => {
-  console.log('Message received!'); // world
+  console.log('Message received!');
+  //queryClient.invalidateQueries(['repoData', roomID]);  // Refetch the room data
 });
 socket.on('connect_error', (error) => {
   if (socket.active) {
@@ -67,7 +69,12 @@ socket.on('connect_error', (error) => {
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <NavScroll />,
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <NavScroll />
+        <HomeMenu />
+      </AuthWrapper>
+    ),
   },
   {
     path: '/home',
@@ -93,11 +100,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/newroom',
-    element: (
-      <AuthWrapper redirectTo="/login">
-        {withRouter(RoomForm)}
-      </AuthWrapper>
-    ),
+    element: <RoomForm></RoomForm>
   },
   {
     path: '/tester/:roomID',
@@ -125,6 +128,23 @@ const router = createBrowserRouter([
     element: (
       <AuthWrapper redirectTo="/login">
         <AccountPage />
+      </AuthWrapper>
+    ),
+  },
+  {
+    path: '/admin/:roomID',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <AdminPanel></AdminPanel>
+      </AuthWrapper>
+    ),
+  },
+  {
+    path: '*',
+    element: (
+      <AuthWrapper redirectTo="/login">
+        <NavScroll />
+        <HomeMenu />
       </AuthWrapper>
     ),
   },

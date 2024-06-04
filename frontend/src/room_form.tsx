@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Button, Card, CardBody, Form } from 'react-bootstrap';
+import { Container, Row, Button, Card, CardBody, Form, InputGroup } from 'react-bootstrap';
 import { fetch_contacts, make_user_dict, create_room } from './api_function';
 import { withRouter, useNavigate} from "react-router-dom";
 
@@ -9,7 +9,9 @@ class RoomForm extends Component {
         this.state = {
             contacts: [],
             userDict: {},
-            navigate : useNavigate
+            navigate : useNavigate,
+            roomName: "None"
+            
         };
     }
 
@@ -35,7 +37,7 @@ class RoomForm extends Component {
         console.log('Selected Contacts:', selectedContacts);
 
         try {
-            const room = await create_room();
+            const room = await create_room(this.state.roomName);
             window.location.href = "/room/" + room.roomCode
         } catch (error) {
             console.error("Error creating room:", error);
@@ -55,6 +57,17 @@ class RoomForm extends Component {
                                     Make new Chat Room
                                 </Button>
                             </Row>
+                            <br></br>
+                            <Row>
+      <InputGroup className="mb-3">
+        <InputGroup.Text id="basic-addon3">
+            Room Name:
+        </InputGroup.Text>
+        <Form.Control id="roomName" aria-describedby="basic-addon3" onChange={(event) => { this.setState({roomName:event.target.value})}}/>
+      </InputGroup>
+
+                            </Row>
+
                             <Row>
                                 <h2>Contacts:</h2>
                                 {contacts.map((contact) => (

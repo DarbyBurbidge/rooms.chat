@@ -25,6 +25,7 @@ async function fetch_room_info(roomID) {
     headers: { "Authorization": Cookies.get('Authorization') },
     credentials: 'include',
   }).then(res => res.json());
+  console.log(data);
   return data.room;
 }
 
@@ -54,7 +55,6 @@ class RoomToReact extends Component {
           as="li"
           className="d-flex justify-content-between align-items-start"
         >
-        <Button>Delete Room</Button>
           <div className="ms-2 me-auto">
             <div className="fw-bold">{room_name}</div>
             {last_msg.content === "none" ? null : (
@@ -114,10 +114,12 @@ class HomeMenu extends Component {
         {Rooms.map((room, index) => {
           const lastMessage = room.messages.length > 0 ? room.messages[room.messages.length - 1] : { "content": "none", "sender": "" };
           const unreadCount = room.messages.filter(message => !message.read).length;
+          console.log(room)
+          const roomName = room.name || "No Name"
           return (
             <RoomToReact
               key={index}
-              room_name={room.name}  // Assuming room has a name property
+              room_name={roomName}  // Assuming room has a name property
               last_msg={lastMessage}
               msg_count={unreadCount}
               uid={room.id}

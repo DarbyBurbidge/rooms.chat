@@ -63,11 +63,12 @@ export const roomJoin = async (req: Request, res: Response) => {
 		const socketId = req.params.socketId;
 		const inviteUrl = req.params.inviteUrl;
 		const usersub = res.locals.usersub;
-		const socket = req.app.get("io").socket.sockets.get(socketId);
+		//const socket = req.app.get("io").socket.sockets.get(socketId);
 		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
 		const user = await UserModel.findOneAndUpdate({ googleId: usersub }, { $push: { rooms: preRoom?.id } });
 		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } });
-		socket.join(room?.id);
+		console.log("NO ERROR")
+		//socket.join(room?.id);
 		res.send();
 	} catch (err) {
 		console.error(err);
@@ -128,6 +129,7 @@ export const roomInfo = async (req: Request, res: Response) => {
 		res.send({
 			"room": {
 				id: room?.id,
+				name: room?.name,
 				creator: room?.creator,
 				admins: room?.admins,
 				users: room?.users,
@@ -150,6 +152,7 @@ export const roomLinkInfo = async (req: Request, res: Response) => {
 		res.send({
 			"room": {
 				id: room?.id,
+				name: room?.name,
 				creator: room?.creator,
 				admins: room?.admins,
 				users: room?.users,

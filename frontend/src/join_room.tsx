@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Col } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
+import { join_room } from './api_function';
 function handleClose(){
     let navigate = useNavigate();
     navigate(`/home`);
@@ -48,8 +49,10 @@ function JoinModal() {
     getRoomInfo();
   }, [inviteLink]);
 
-  const handleJoinRoom = () => {
-    navigate(`/rooms/${inviteLink}`);
+  const handleJoinRoom = async () => {
+    await join_room(inviteLink);
+    navigate(`/room/${roomInfo.id}`);
+
   };
 
   if (loading) {
@@ -67,7 +70,7 @@ function JoinModal() {
     >
       <Modal show = {true}backdrop="static" onHide={() => navigate("/home")}>
         <Modal.Header closeButton>
-          <Modal.Title>You have been invited to {roomInfo.creator.given_name}'s Room</Modal.Title>
+          <Modal.Title>You have been invited to {roomInfo.name|| "Unnamed Room"}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>

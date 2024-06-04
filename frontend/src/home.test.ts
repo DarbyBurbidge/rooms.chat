@@ -1,8 +1,13 @@
-import { fetch_user_data, current_user_data  } from "./api_function";
-import { Cookies } from "react-cookie";
-test('the data is peanut butter', async () => {
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import NavScroll from './src/NavScroll'; // Adjust the import path according to your file structure
 
-  Cookies.set('Authorization', "none");
-  const data = await current_user_data();
-  expect(data).toBe('peanut butter');
+describe('NavScroll', () => {
+  it('renders the room name', () => {
+    render(<NavScroll />);
+    
+    // Example test to check if "No Name" is in the document
+    expect(screen.getByText(/No Name/i)).toBeInTheDocument();
+  });
 });
