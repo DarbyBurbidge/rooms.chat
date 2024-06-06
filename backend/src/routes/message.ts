@@ -11,25 +11,20 @@ const sendNewMessageNotification = async (sender: DocumentType<User>, room: Docu
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		console.log("sender", sender, "room", room, "userId", userId)
 		const message = `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`;
 		const type = "new message";
 		const url = `http://localhost:5173/tester/${room?.id}`;
-		console.log(message, type, url)
 		const notification = await NotificationModel.create({
-			message: message,
-			type: type,
-			url: url,
+			message,
+			type,
+			url,
 			from: sender,
-		}, {
-			session
 		});
 		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { new: true, session });
 		await session.commitTransaction();
 		io.to(user!.googleId).emit("new message", notification);
 		return;
 	} catch (err) {
-		console.error(err);
 		await session.abortTransaction();
 		throw Error("Failed to spawn notification");
 	}
@@ -45,14 +40,14 @@ const messageCreate = async (req: Request, res: Response) => {
 		const { sender, message, room } = await resolveMessageCreate(usersub, roomId, content);
 		console.log(sender, message, room)
 		room?.users.forEach(async (user) => {
-			//await sendNewMessageNotification(sender!, room!, user.id);
+			await sendNewMessageNotification(sender!, room!, user.id);
 		});
 		console.log("users notified");
 		room?.admins.forEach(async (admin) => {
-			//await sendNewMessageNotification(sender!, room!, admin.id);
+			await sendNewMessageNotification(sender!, room!, admin.id);
 		});
 		console.log("admins notified");
-		//await sendNewMessageNotification(sender!, room!, room?.creator.id)
+		await sendNewMessageNotification(sender!, room!, room?.creator._id)
 		console.log("made it");
 		res.send({
 			message: {
