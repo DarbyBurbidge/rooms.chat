@@ -2,10 +2,8 @@ import { mongoose } from "@typegoose/typegoose";
 import { NotificationModel, UserModel } from "../models/exports.ts";
 
 export const resolveNotifiRead = async (googleId: string, noteId: string) => {
-	const session = await mongoose.startSession();
-	session.startTransaction();
 	try {
-		const user = await UserModel.findOne({ googleId: googleId }, { session });
+		const user = await UserModel.findOne({ googleId: googleId });
 		const note = user?.notifications.filter((notification) => {
 			return notification.id == noteId;
 		})
@@ -13,14 +11,10 @@ export const resolveNotifiRead = async (googleId: string, noteId: string) => {
 		if (!note) {
 			throw new Error("Unable to find notification");
 		}
-		const notification = await NotificationModel.findByIdAndUpdate(noteId, { read: true }, { session });
-		await session.commitTransaction();
+		const notification = await NotificationModel.findByIdAndUpdate(noteId, { read: true });
 		return notification;
 	} catch (err) {
-		await session.abortTransaction();
 		throw err;
-	} finally {
-		session.endSession();
 	}
 }
 
@@ -29,7 +23,7 @@ export const resolveNotifiDelete = async (googleId: string, noteId: string) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		const user = await UserModel.findOneAndUpdate({ googleId: googleId, notifications: noteId }, { $pull: { notifications: { id: noteId } } });
+		const user = await UserModel.findOneAndUpdate({ googleId: googleId, notifications: noteId }, { $pull: { notifications: { id: noteId } } }, { new: true, session });
 		if (user) {
 			const note = user?.notifications.filter((notification) => {
 				return notification.id == noteId;
@@ -38,7 +32,7 @@ export const resolveNotifiDelete = async (googleId: string, noteId: string) => {
 				throw new Error("Unable to delete note from user")
 			}
 			// Only delete notification if a user was found
-			await NotificationModel.findByIdAndDelete(noteId);
+			await NotificationModel.findByIdAndDelete(noteId, { session });
 		}
 		await session.commitTransaction();
 		return;

@@ -3,12 +3,13 @@
     "rootDir": "src",
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist/",
     "declarationMap": true,
-    "sourceMap": true,
     "importsNotUsedAsValues": "remove",
     //"isolatedModules": true,
     "moduleResolution": "bundler",
@@ -34,8 +35,12 @@
     "esm": true,
     "transpileOnly": true,
     "experimentalResolver": true,
-    "files": true,
+    "files": true
   },
-  "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ]
 }

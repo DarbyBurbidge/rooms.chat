@@ -5,9 +5,9 @@ export const resolveMessageCreate = async (googleId: string, roomId: string, con
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		const sender = await UserModel.findOne({ googleId: googleId }, { session });
+		const sender = await UserModel.findOne({ googleId: googleId });
 		const message = await MessageModel.create([{ sender: sender?.id, content: content }], { session });
-		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message[0].id } }, { session });
+		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message[0].id } }, { new: true, session });
 		await session.commitTransaction();
 		return {
 			sender: sender,
@@ -24,19 +24,13 @@ export const resolveMessageCreate = async (googleId: string, roomId: string, con
 
 
 export const resolveMessageEdit = async (googleId: string, messageId: string, content: string) => {
-	const session = await mongoose.startSession();
-	session.startTransaction();
 	try {
-		const user = await UserModel.findOne({ googleId: googleId }, { session });
+		const user = await UserModel.findOne({ googleId: googleId });
 		console.log(user?.id)
-		const message = await MessageModel.findOneAndUpdate({ _id: messageId, sender: user?.id }, { content: content, editTime: Date.now() }, { new: true, session });
-		await session.commitTransaction();
+		const message = await MessageModel.findOneAndUpdate({ _id: messageId, sender: user?.id }, { content: content, editTime: Date.now() }, { new: true });
 		return message;
 	} catch (err) {
-		await session.abortTransaction();
 		throw err;
-	} finally {
-		await session.endSession();
 	}
 }
 
@@ -45,10 +39,11 @@ export const resolveMessageDelete = async (googleId: string, messageId: string) 
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		const user = await UserModel.findOne({ googleId: googleId }, { session });
-		const message = await MessageModel.findOneAndDelete({ _id: messageId, sender: user?.id });
+		const user = await UserModel.findOne({ googleId: googleId });
+		const message = await MessageModel.findOneAndDelete({ _id: messageId, sender: user?.id }, { session });
 		if (message) {
-			await RoomModel.findOneAndUpdate({ messages: messageId });
+			console.log(message)
+			await RoomModel.findOneAndUpdate({ in: { 'messages._id': messageId } }, { $pull: { messages: messageId } }, { session });
 		}
 		await session.commitTransaction();
 		return;

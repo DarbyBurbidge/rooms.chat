@@ -9,7 +9,7 @@ export class User {
 	@prop({ auto: true })
 	readonly _id: mongoose.Types.ObjectId;
 
-	@prop({ required: true })
+	@prop({ required: true, unique: true })
 	readonly googleId: string;
 
 	@prop({ nullable: true })

@@ -1,18 +1,36 @@
 import { Request, Response, Router } from "express";
+import { mongoose, DocumentType } from "@typegoose/typegoose";
 import { io } from "../main.ts";
 import { authMW } from "../middleware/auth.ts";
-import { MessageModel, NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
+import { NotificationModel, UserModel } from "../models/exports.ts";
 import { User } from "src/models/user.ts";
 import { Room } from "src/models/room.ts";
-import { DocumentType } from "@typegoose/typegoose";
 import { resolveMessageCreate, resolveMessageDelete, resolveMessageEdit } from "../resolvers/message.ts";
 
 const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: string) => {
+	const session = await mongoose.startSession();
+	session.startTransaction();
 	try {
-		const notification = await NotificationModel.create({ from: sender, message: `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`, type: "new message", url: `http://localhost:5173/tester/${room?.id}` })
-		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } });
+		console.log("sender", sender, "room", room, "userId", userId)
+		const message = `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`;
+		const type = "new message";
+		const url = `http://localhost:5173/tester/${room?.id}`;
+		console.log(message, type, url)
+		const notification = await NotificationModel.create({
+			message: message,
+			type: type,
+			url: url,
+			from: sender,
+		}, {
+			session
+		});
+		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { new: true, session });
+		await session.commitTransaction();
 		io.to(user!.googleId).emit("new message", notification);
+		return;
 	} catch (err) {
+		console.error(err);
+		await session.abortTransaction();
 		throw Error("Failed to spawn notification");
 	}
 
@@ -25,13 +43,17 @@ const messageCreate = async (req: Request, res: Response) => {
 		const roomId = req.params.roomId;
 		const content = req.body?.content;
 		const { sender, message, room } = await resolveMessageCreate(usersub, roomId, content);
+		console.log(sender, message, room)
 		room?.users.forEach(async (user) => {
-			await sendNewMessageNotification(sender!, room!, user.id);
+			//await sendNewMessageNotification(sender!, room!, user.id);
 		});
+		console.log("users notified");
 		room?.admins.forEach(async (admin) => {
-			await sendNewMessageNotification(sender!, room!, admin.id);
+			//await sendNewMessageNotification(sender!, room!, admin.id);
 		});
-		await sendNewMessageNotification(sender!, room!, room?.creator.id)
+		console.log("admins notified");
+		//await sendNewMessageNotification(sender!, room!, room?.creator.id)
+		console.log("made it");
 		res.send({
 			message: {
 				id: message?.id,
@@ -42,6 +64,7 @@ const messageCreate = async (req: Request, res: Response) => {
 			}
 		});
 	} catch (err) {
+		console.error(err);
 		res.statusCode = 500;
 		res.send();
 	}
@@ -75,6 +98,7 @@ const messageDelete = async (req: Request, res: Response) => {
 		await resolveMessageDelete(usersub, messageId);
 		res.send();
 	} catch (err) {
+		console.log(err);
 		res.statusCode = 500;
 		res.send();
 	}

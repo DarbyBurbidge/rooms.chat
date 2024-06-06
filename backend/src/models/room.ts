@@ -22,7 +22,7 @@ export class Room {
 	@prop({ ref: () => User, default: [] })
 	users: [Ref<User>];
 
-	@prop({ ref: () => Message, default: true })
+	@prop({ ref: () => Message, default: [] })
 	messages: [Ref<Message>];
 
 	@prop()

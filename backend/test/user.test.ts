@@ -1,10 +1,75 @@
-import request from "supertest";
-import { app } from "../src/main.ts";
+import { connectToDB, disconnectFromDB, mockRoom, mockUsers } from "./mocks"
+import { resolveUserInvite, resolveUserSrch } from "../src/resolvers/user.ts"
+
+describe("user", () => {
+  beforeAll(async () => {
+    await connectToDB();
+  });
+  afterAll(async () => {
+    await disconnectFromDB();
+  });
+
+  describe("username search", () => {
+    it("should return an empty list when the names are not found", async () => {
+      const names = ["a"];
+      const users = await resolveUserSrch(names);
+      expect(users).toEqual([]);
+    });
+
+    it("should throw when names is empty", async () => {
+      const names: string[] = [];
+      await expect(resolveUserSrch(names)).rejects.toThrow("must be a nonempty array");
+    });
+    it("should return a list of users if any of the names match", async () => {
+      const names1: string[] = ["darby"];
+      const names2: string[] = ["norman"];
+      const names3: string[] = ["b", "x"];
+      const users = await mockUsers();
+      const users1 = await resolveUserSrch(names1);
+      const users2 = await resolveUserSrch(names2);
+      const users3 = await resolveUserSrch(names3);
+      expect(users1.length).toBe(1);
+      expect(users1[0].toJSON()).toEqual(users[0].toJSON());
+      expect(users2.length).toBe(1);
+      expect(users2[0].toJSON()).toEqual(users[1].toJSON());
+      expect(users3.length).toBe(2);
+      for (let i = 0; i < users3.length; i++) {
+        expect(users[i].toJSON()).toEqual(users[i].toJSON());
+      }
+    });
+  });
 
 
+  describe("user invite", () => {
+    it("should throw an error when userId isn't in database", async () => {
+      const users = await mockUsers();
+      const rooms = await mockRoom(users[0].id);
+      await expect(resolveUserInvite("1", rooms[0].id, users[0].googleId)).rejects.toThrow();
+    })
 
-it("test testing", async () => {
-  await request(app).get('/user/search?username=darby')
-    .set('authorization', 'Bearer%20eyJhbGciOiJSUzI1NiIsImtpZCI6IjY3MTk2NzgzNTFhNWZhZWRjMmU3MDI3NGJiZWE2MmRhMmE4YzRhMTIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyNzIyOTMwMDk4OTctdDdlaTFvZGFlOWsyOWFlZ3IyNnJ0YzQ3MXQwOGJraHAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyNzIyOTMwMDk4OTctdDdlaTFvZGFlOWsyOWFlZ3IyNnJ0YzQ3MXQwOGJraHAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTgzMTk3NDg4MDczNTkwNDU0MzgiLCJhdF9oYXNoIjoiOHdQNG5FQlNEV1BGWXVIN2NoSWJCUSIsIm5hbWUiOiJEYXJieSBCdXJiaWRnZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMdFdDREd5UEFSbTdfaWJCZVhPT1E5YkM5ZEpHVXRURUI2aS01THRNRW9HS3JoWnc9czk2LWMiLCJnaXZlbl9uYW1lIjoiRGFyYnkiLCJmYW1pbHlfbmFtZSI6IkJ1cmJpZGdlIiwiaWF0IjoxNzE3MTgyMzUyLCJleHAiOjE3MTcxODU5NTJ9.TgPoLPkABaWgxWkYShe_-5yEkO1Dw6wERTu2RP42Lx4lQYU02JbTwLESV1b02lmC7CkhLf1nLltlCx8FMq-l2tO4Za7fpvn6cbmFrrItXvhVKDrBL5tbEojKPVQonC76Pf-MDwFLKT5Aojg0RgFSt3plP7ZGDD7xynzOVJ3Q46eYeE4-Z5yzMFDaW881SYmkkGzAnQW4nSCCpIKG44CsXGdki7gE-3pHRo8wbEhQo4RxXTZxCMbo0_sx-nkA761OwZLktIQz9FWX6LkjjWuBUyXUZQIBuviu8K22PanjKXywOyMUV-W5YfePkdVoomhwqjuA69TMrVttLpj5zax62w')
-    .expect(200);
-})
+    it("should throw an error when roomId isn't in database", async () => {
+      const users = await mockUsers();
+      await mockRoom(users[0].id);
+      await expect(resolveUserInvite(users[1].id, "1", users[0].googleId)).rejects.toThrow();
+    })
+
+    it("should throw an error when googleId isn't in database", async () => {
+      const users = await mockUsers();
+      const rooms = await mockRoom(users[0].id);
+      await expect(resolveUserInvite(users[1].id, rooms[0].id, "1")).rejects.toThrow();
+    })
+
+    it("should return a notification when all input is valid", async () => {
+      const users = await mockUsers();
+      const rooms = await mockRoom(users[0].id);
+      const notifications = await resolveUserInvite(users[1].id, rooms[0].id, users[0].googleId);
+      users.forEach((user) => {
+        console.log(user._id);
+      })
+      rooms.forEach((room) => {
+        console.log(room._id);
+      })
+      expect(notifications).toMatchObject(expect.arrayContaining([expect.objectContaining({ from: expect.objectContaining({ _id: users[0]._id }), message: "Darby has invited you to chat!", type: "invite", url: "www.mockroom.com", read: false })]));
+    })
+  })
+});

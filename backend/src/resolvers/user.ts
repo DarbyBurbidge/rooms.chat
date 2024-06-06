@@ -2,41 +2,47 @@ import { mongoose } from "@typegoose/typegoose";
 import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
 
 export const resolveUserSrch = async (names: string[]) => {
-	console.log(names)
-	const users = await UserModel.find({
-		$or: [
-			{
-				$or: names.map((name) => {
-					return {
-						given_name: {
-							$regex: name,
-							$options: "i"
+	try {
+		const users = await UserModel.find({
+			$or: [
+				{
+					$or: names.map((name) => {
+						return {
+							given_name: {
+								$regex: name,
+								$options: "i"
+							}
 						}
-					}
-				})
-			}, {
-				$or: names.map((name) => {
-					return {
-						family_name: {
-							$regex: name,
-							$options: "i"
+					})
+				}, {
+					$or: names.map((name) => {
+						return {
+							family_name: {
+								$regex: name,
+								$options: "i"
+							}
 						}
-					}
-				})
-			}
-		]
-	});
-	return users;
+					})
+				}
+			]
+		});
+		return users;
+	} catch (err) {
+		throw err;
+	}
 }
 
 export const resolveUserInvite = async (userId: string, roomId: string, googleId: string) => {
 	const session = await mongoose.startSession();
-	session.startTransaction();
 	try {
 		const sender = await UserModel.findOne({ googleId: googleId });
+		if (!sender) {
+			throw new Error("Could not find user");
+		}
 		const room = await RoomModel.findById(roomId);
 		console.log(userId, roomId, googleId)
 		const inviteMessage = `${sender?.given_name} has invited you to chat!`;
+		session.startTransaction();
 		const notification = await NotificationModel.create([{
 			from: sender,
 			message: inviteMessage,
@@ -45,7 +51,7 @@ export const resolveUserInvite = async (userId: string, roomId: string, googleId
 		}], {
 			session: session
 		});
-		await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { session });
+		await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { new: true, session });
 		await session.commitTransaction();
 		return notification;
 	} catch (err) {

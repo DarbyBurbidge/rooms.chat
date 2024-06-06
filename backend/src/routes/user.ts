@@ -5,10 +5,16 @@ import { UserModel } from "../models/exports.ts";
 import { io } from "../main.ts";
 
 export const userSrchId = async (req: Request, res: Response) => {
-	console.log(req.query.id);
-	const user = await UserModel.findById(req.query.id);
-	console.log(user)
-	res.send(user);
+	try {
+		console.log(req.query.id);
+		const user = await UserModel.findById(req.query.id);
+		console.log(user)
+		res.send(user);
+	} catch (err) {
+		console.error(err);
+		res.statusCode = 500;
+		res.send();
+	}
 }
 export const userSearch = async (req: Request, res: Response) => {
 	const username = req.query.username as string;

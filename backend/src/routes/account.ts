@@ -40,7 +40,7 @@ export const accountInfo = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const account = await resolveAccountInfo(usersub);
-		res.send({ "account": account });
+		res.send({ account });
 	} catch (err) {
 		res.statusCode = 500;
 		res.send()

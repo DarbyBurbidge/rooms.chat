@@ -36,8 +36,8 @@ export const resolveRoomDelete = async (roomId: string) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		await UserModel.updateMany({ rooms: roomId }, { $pull: { rooms: roomId } })
-		await RoomModel.findByIdAndDelete(roomId);
+		await UserModel.updateMany({ rooms: roomId }, { $pull: { rooms: roomId } }, { session })
+		await RoomModel.findByIdAndDelete(roomId, { session });
 		await session.commitTransaction();
 		return
 	} catch (err) {
@@ -64,8 +64,8 @@ export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
 	session.startTransaction();
 	try {
 		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
-		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $push: { rooms: preRoom?.id } });
-		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } });
+		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $push: { rooms: preRoom?.id } }, { new: true, session });
+		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } }, { new: true, session });
 		await session.commitTransaction();
 		return room?.id;
 	} catch (err) {

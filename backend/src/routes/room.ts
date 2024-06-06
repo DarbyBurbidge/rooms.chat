@@ -69,19 +69,10 @@ export const roomJoin = async (req: Request, res: Response) => {
 export const roomLeave = async (req: Request, res: Response) => {
 	try {
 		const roomId = req.params.roomId;
-		const socketId = req.params.socketId;
 		const usersub = res.locals.usersub;
 		const room = await resolveRoomLeave(roomId, usersub);
 		await removeUserFromRoom(usersub, room?.id);
-		res.send({
-			"room": {
-				id: room?.id,
-				creator: room?.creator,
-				admins: room?.admins,
-				users: room?.users,
-				messages: room?.messages
-			}
-		});
+		res.send();
 	} catch (err) {
 		console.error(err);
 		res.statusCode = 500;
@@ -93,7 +84,7 @@ export const roomList = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const rooms = await resolveRoomList(usersub);
-		res.json({ "rooms": rooms }).send();
+		res.json({ rooms }).send();
 	} catch (err) {
 		console.error(err);
 		res.statusCode = 500;
@@ -107,15 +98,7 @@ export const roomInfo = async (req: Request, res: Response) => {
 		const roomId = req.params.roomId;
 		const room = await resolveRoomInfo(roomId);
 		res.send({
-			"room": {
-				id: room?.id,
-				name: room?.name,
-				creator: room?.creator,
-				admins: room?.admins,
-				users: room?.users,
-				messages: room?.messages,
-				inviteUrl: room?.inviteUrl
-			}
+			room
 		});
 	} catch (err) {
 		console.error(err);
@@ -130,14 +113,7 @@ export const roomLinkInfo = async (req: Request, res: Response) => {
 		console.log(inviteUrl)
 		const room = await resolveRoomLinkInfo(inviteUrl);
 		res.send({
-			"room": {
-				id: room?.id,
-				name: room?.name,
-				creator: room?.creator,
-				admins: room?.admins,
-				users: room?.users,
-				messages: room?.messages
-			}
+			room
 		});
 	} catch (err) {
 		console.error(err);
