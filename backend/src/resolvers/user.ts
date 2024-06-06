@@ -45,7 +45,6 @@ export const resolveUserInvite = async (userId: string, roomId: string, googleId
 		}], {
 			session: session
 		});
-		console.log(notification)
 		await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { session });
 		await session.commitTransaction();
 		return notification;

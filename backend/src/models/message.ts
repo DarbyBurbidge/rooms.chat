@@ -19,7 +19,4 @@ export class Message {
 
 	@prop({ nullable: true })
 	content?: string;
-
-	@prop({ default: false })
-	read: boolean;
 }

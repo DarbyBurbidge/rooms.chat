@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { authMW } from "../middleware/auth.ts";
-import { UserModel } from "../models/exports.ts";
+import { resolveAccountDelete, resolveAccountInfo } from "../resolvers/account.ts";
 
 export const accountLogin = async (req: Request, res: Response) => {
 	console.log(req.body);
@@ -28,7 +28,7 @@ export const accountLogin = async (req: Request, res: Response) => {
 export const accountDelete = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
-		await UserModel.findOneAndDelete({ googleId: usersub });
+		await resolveAccountDelete(usersub);
 		res.send();
 	} catch (err) {
 		res.statusCode = 500;
@@ -39,7 +39,7 @@ export const accountDelete = async (_: Request, res: Response) => {
 export const accountInfo = async (_: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
-		const account = await UserModel.findOne({ googleId: usersub });
+		const account = await resolveAccountInfo(usersub);
 		res.send({ "account": account });
 	} catch (err) {
 		res.statusCode = 500;
