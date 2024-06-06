@@ -1,6 +1,5 @@
 import { Request, Response, Router } from "express";
 import { authMW } from "../middleware/auth.ts";
-import { RoomModel, UserModel } from "../models/exports.ts";
 import { randomUUID } from "crypto";
 import { addUserToRoom, removeUserFromRoom } from "../utils/io.ts";
 import { resolveRoomCreate, resolveRoomDelete, resolveRoomInfo, resolveRoomJoin, resolveRoomLeave, resolveRoomLink, resolveRoomLinkInfo, resolveRoomList } from "../resolvers/room.ts";
