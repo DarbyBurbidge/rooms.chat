@@ -1,5 +1,5 @@
+import { mongoose } from "@typegoose/typegoose";
 import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
-import { db } from "../main.ts";
 
 export const resolveUserSrch = async (names: string[]) => {
 	console.log(names)
@@ -30,7 +30,7 @@ export const resolveUserSrch = async (names: string[]) => {
 }
 
 export const resolveUserInvite = async (userId: string, roomId: string, googleId: string) => {
-	const session = await db.startSession();
+	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const sender = await UserModel.findOne({ googleId: googleId });

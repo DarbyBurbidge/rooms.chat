@@ -5,6 +5,7 @@ import { MessageModel, NotificationModel, RoomModel, UserModel } from "../models
 import { User } from "src/models/user.ts";
 import { Room } from "src/models/room.ts";
 import { DocumentType } from "@typegoose/typegoose";
+import { resolveMessageCreate, resolveMessageDelete, resolveMessageEdit } from "../resolvers/message.ts";
 
 const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: string) => {
 	try {
@@ -23,9 +24,7 @@ const messageCreate = async (req: Request, res: Response) => {
 		const usersub = res.locals.usersub;
 		const roomId = req.params.roomId;
 		const content = req.body?.content;
-		const sender = await UserModel.findOne({ googleId: usersub });
-		const message = await MessageModel.create({ sender: sender?.id, content: content });
-		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message.id } });
+		const { sender, message, room } = await resolveMessageCreate(usersub, roomId, content);
 		room?.users.forEach(async (user) => {
 			await sendNewMessageNotification(sender!, room!, user.id);
 		});
@@ -40,7 +39,6 @@ const messageCreate = async (req: Request, res: Response) => {
 				content: message?.content,
 				createTime: message?.createTime,
 				editTime: message?.editTime,
-				read: message?.read
 			}
 		});
 	} catch (err) {
@@ -54,11 +52,7 @@ const messageEdit = async (req: Request, res: Response) => {
 		const usersub = res.locals.usersub;
 		const messageId = req.params.messageId;
 		const content = req.body?.content;
-		console.log(content)
-		const user = await UserModel.findOne({ googleId: usersub });
-		console.log(user?.id)
-		const message = await MessageModel.findOneAndUpdate({ _id: messageId, sender: user?.id }, { content: content, editTime: Date.now() }, { new: true });
-		console.log(message)
+		const message = await resolveMessageEdit(usersub, messageId, content);
 		res.send({
 			message: {
 				id: message?.id,
@@ -66,7 +60,6 @@ const messageEdit = async (req: Request, res: Response) => {
 				content: message?.content,
 				createTime: message?.createTime,
 				editTime: message?.editTime,
-				read: message?.read
 			}
 		});
 	} catch (err) {
@@ -79,11 +72,7 @@ const messageDelete = async (req: Request, res: Response) => {
 	try {
 		const usersub = res.locals.usersub;
 		const messageId = req.params.messageId;
-		const user = await UserModel.findOne({ googleId: usersub });
-		const message = await MessageModel.findOneAndDelete({ _id: messageId, sender: user?.id });
-		if (message) {
-			await RoomModel.findOneAndUpdate({ messages: messageId });
-		}
+		await resolveMessageDelete(usersub, messageId);
 		res.send();
 	} catch (err) {
 		res.statusCode = 500;

@@ -1,8 +1,8 @@
+import { mongoose } from "@typegoose/typegoose";
 import { RoomModel, UserModel } from "../models/exports.ts";
-import { db } from "../main.ts";
 
 export const resolveRoomCreate = async (googleId: string, roomName: string, url: string) => {
-	const session = await db.startSession();
+	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const user = await UserModel.findOne({
@@ -33,7 +33,7 @@ export const resolveRoomCreate = async (googleId: string, roomName: string, url:
 
 
 export const resolveRoomDelete = async (roomId: string) => {
-	const session = await db.startSession();
+	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		await UserModel.updateMany({ rooms: roomId }, { $pull: { rooms: roomId } })
@@ -60,7 +60,7 @@ export const resolveRoomLink = async (roomId: string) => {
 
 
 export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
-	const session = await db.startSession();
+	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
@@ -78,7 +78,7 @@ export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
 
 
 export const resolveRoomLeave = async (roomId: string, googleId: string) => {
-	const session = await db.startSession();
+	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $pull: { rooms: roomId } });
