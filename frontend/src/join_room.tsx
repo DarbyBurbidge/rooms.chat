@@ -51,7 +51,7 @@ function JoinModal() {
 
   const handleJoinRoom = async () => {
     await join_room(inviteLink);
-    navigate(`/room/${roomInfo.id}`);
+    navigate(`/room/${roomInfo._id}`);
 
   };
 

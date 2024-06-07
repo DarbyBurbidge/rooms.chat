@@ -10,15 +10,15 @@ def generate_random_string(length):
     random_string = ''.join(random.choice(characters) for i in range(length))
     return random_string
 room_name = generate_random_string(12)
+def test_login():
+    assert login_test()
 def test_unit_tests():
-    assert view_room_test(id = "665a719f6a668ea08588689a", expected_result="Max's Actual Room")
+    assert view_room_test(id = "66633bf80ccf3a2263e5351f", expected_result="Max's Actual Room")
     assert deauthed_url_test("""http://localhost:5173/tester/1""")
     assert deauthed_url_test("""http://localhost:5173/home""")
     assert deauthed_url_test("""http://localhost:5173/home/dsafasdf""")
     assert deauthed_url_test("""http://localhost:5173/"""+generate_random_string(12))
-    assert view_room_invite_test(link = "ad3e7bb1-bc09-42c6-9215-2195b703bb63", expected_result="Max's Actual Room")
-def test_login():
-    assert login_test()
+    assert view_room_invite_test(link = "c00b1376-3927-4ea7-99a6-96cff821c19a", expected_result="Max's Actual Room")
 
 def test_bad_login():
     with pytest.raises(NoSuchElementException):
