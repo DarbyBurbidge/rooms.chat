@@ -25,7 +25,7 @@ export async function create_room(roomName){
 }
 export async function join_room(roomLink){
     console.log(Cookies.get('socketid'))
-   const data = await fetch(`http://localhost:3000/room/join/${Cookies.get('socketid')}/${roomLink}`, {
+   const data = await fetch(`http://localhost:3000/room/join/${roomLink}`, {
         method: 'PUT',
         mode: 'cors',
         headers: { "Authorization": Cookies.get('Authorization')},
