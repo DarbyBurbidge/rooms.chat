@@ -1,4 +1,7 @@
 import Cookies from "js-cookie"
+export function get_hostname(){
+
+}
 export async function fetch_contacts(){
    const data = await fetch(`http://localhost:3000/contact/list`, {
         method: 'GET',
@@ -11,7 +14,7 @@ export async function fetch_contacts(){
 export async function create_room(roomName){
     console.log(Cookies.get('socketid'))
     console.log(roomName)
-   const data = await fetch(`http://localhost:3000/room/create/${Cookies.get('socketid')}`, {
+   const data = await fetch(`http://localhost:3000/room/create/`, {
         method: 'POST',
         mode: 'cors',
         headers: { "Authorization": Cookies.get('Authorization'),"Content-Type": "application/json"    },

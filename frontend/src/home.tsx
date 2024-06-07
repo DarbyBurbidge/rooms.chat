@@ -122,7 +122,7 @@ class HomeMenu extends Component {
               room_name={roomName}  // Assuming room has a name property
               last_msg={lastMessage}
               msg_count={unreadCount}
-              uid={room.id}
+              uid={room._id}
               user_dict={user_dict}
             />
           );
