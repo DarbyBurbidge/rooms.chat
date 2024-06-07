@@ -7,28 +7,33 @@ import { User } from "src/models/user.ts";
 import { Room } from "src/models/room.ts";
 import { resolveMessageCreate, resolveMessageDelete, resolveMessageEdit } from "../resolvers/message.ts";
 
-const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: string) => {
+const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: mongoose.Types.ObjectId) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const message = `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`;
 		const type = "new message";
-		const url = `http://localhost:5173/tester/${room?.id}`;
+		const url = `http://localhost:5173/tester/${room?._id}`;
+		console.log("stopped here")
 		const notifications = await NotificationModel.create([{
 			message,
 			type,
 			url,
 			from: sender,
-		}], { session });
-		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notifications[0] } }, { new: true, session });
+		}]);
+		console.log(userId)
+		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notifications[0] } }, { new: true });
 		await session.commitTransaction();
+		console.log("got user");
 		io.to(user!.googleId).emit("new message", notifications[0]);
 		return;
 	} catch (err) {
 		await session.abortTransaction();
-		throw Error("Failed to spawn notification");
+		console.error(err)
+		throw new Error("Failed to spawn notification");
+	} finally {
+		session.endSession();
 	}
-
 }
 
 
@@ -40,14 +45,14 @@ const messageCreate = async (req: Request, res: Response) => {
 		const { sender, message, room } = await resolveMessageCreate(usersub, roomId, content);
 		console.log(sender, message, room)
 		room?.users.forEach(async (user) => {
-			await sendNewMessageNotification(sender!, room!, user.id);
+			await sendNewMessageNotification(sender!, room!, user._id);
 		});
 		console.log("users notified");
 		room?.admins.forEach(async (admin) => {
-			await sendNewMessageNotification(sender!, room!, admin.id);
+			await sendNewMessageNotification(sender!, room!, admin._id);
 		});
 		console.log("admins notified");
-		await sendNewMessageNotification(sender!, room!, room?.creator._id)
+		await sendNewMessageNotification(sender!, room!, room?.creator._id!)
 		console.log("made it");
 		res.send({
 			message: {

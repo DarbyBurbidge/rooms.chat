@@ -6,8 +6,8 @@ import { io } from "../main.ts";
 
 export const userSrchId = async (req: Request, res: Response) => {
 	try {
-		console.log(req.query.id);
-		const user = await UserModel.findById(req.query.id);
+		console.log(req.query.id?.toString());
+		const user = await UserModel.findById(req.query.id?.toString());
 		console.log(user)
 		res.send(user);
 	} catch (err) {
@@ -22,7 +22,7 @@ export const userSearch = async (req: Request, res: Response) => {
 	console.log(names)
 	const users = await resolveUserSrch(names);
 	console.log(users)
-	res.send({ "users": users });
+	res.send({ users });
 };
 
 export const userInvite = async (req: Request, res: Response) => {
