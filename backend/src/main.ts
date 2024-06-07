@@ -76,7 +76,7 @@ io.on("error", (err) => {
 	console.error(err);
 });
 
-mongoose.connect(`${process.env.ATLAS_URI}`).then(() => {
+mongoose.connect(`${process.env.PROD_URI}`).then(() => {
 	console.log("connected to Atlas");
 }).catch((err) => {
 	console.error(err);

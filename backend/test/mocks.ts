@@ -1,12 +1,11 @@
-import { MongoMemoryReplSet } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { RoomModel, UserModel } from "../src/models/exports";
-
+import { RoomModel, UserModel, NotificationModel, MessageModel } from "../src/models/exports";
+import { config } from "dotenv";
 
 export const connectToDB = async () => {
+  config();
   const db = mongoose.connection;
-  const mongoServer = await MongoMemoryReplSet.create();
-  await mongoose.connect(`${mongoServer.getUri()}`).then(() => {
+  await mongoose.connect(`${process.env.TEST_URI}`).then(() => {
     console.log("connected to Mock");
   }).catch((err) => {
     console.error(err);
@@ -18,11 +17,13 @@ export const connectToDB = async () => {
   db.on('disconnected', () => {
     console.log('Mock Closed');
   });
+  const users = await mockUsers();
+  await mockRoom(users[0].id);
 }
 
 
 export const disconnectFromDB = async () => {
-  mongoose.connection.dropDatabase();
+  await deleteMocks();
   await mongoose.disconnect();
   await mongoose.connection.close();
 }
@@ -39,4 +40,12 @@ export const mockUsers = async () => {
 export const mockRoom = async (userId: string) => {
   const room = await RoomModel.create([{ name: "mock_room", creator: userId, inviteUrl: "www.mockroom.com", messages: [] }]);
   return room;
+}
+
+
+export const deleteMocks = async () => {
+  await UserModel.collection.drop();
+  await RoomModel.collection.drop();
+  await MessageModel.collection.drop();
+  await NotificationModel.collection.drop();
 }

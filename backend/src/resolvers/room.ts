@@ -65,9 +65,15 @@ export const resolveRoomJoin = async (inviteUrl: string, googleId: string) => {
 	try {
 		const preRoom = await RoomModel.findOne({ inviteUrl: inviteUrl });
 		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $push: { rooms: preRoom?.id } }, { new: true, session });
+		if (!user) {
+			throw new Error("unable to find user");
+		}
 		const room = await RoomModel.findOneAndUpdate({ inviteUrl: inviteUrl }, { $push: { users: user } }, { new: true, session });
+		if (!room) {
+			throw new Error("unable to find room");
+		}
 		await session.commitTransaction();
-		return room?.id;
+		return room!.id;
 	} catch (err) {
 		await session.abortTransaction();
 		throw err;
@@ -82,6 +88,9 @@ export const resolveRoomLeave = async (roomId: string, googleId: string) => {
 	session.startTransaction();
 	try {
 		const user = await UserModel.findOneAndUpdate({ googleId: googleId }, { $pull: { rooms: roomId } });
+		if (!user) {
+			throw new Error("unable to find user");
+		}
 		let room = await RoomModel.findById(roomId);
 		if (room?.creator.equals(user?.id)) {
 			await resolveRoomDelete(roomId);
@@ -104,6 +113,9 @@ export const resolveRoomLeave = async (roomId: string, googleId: string) => {
 export const resolveRoomList = async (googleId: string) => {
 	try {
 		const user = await UserModel.findOne({ googleId: googleId }).populate('rooms');
+		if (!user) {
+			throw new Error("unable to find user");
+		}
 		return user?.rooms;
 	} catch (err) {
 		throw err;
@@ -114,6 +126,9 @@ export const resolveRoomList = async (googleId: string) => {
 export const resolveRoomInfo = async (roomId: string) => {
 	try {
 		const room = await RoomModel.findOne({ _id: roomId }).populate('creator').populate('admins').populate('users').populate('messages');
+		if (!room) {
+			throw new Error("unable to find room");
+		}
 		return room;
 	} catch (err) {
 		throw err;
@@ -124,6 +139,9 @@ export const resolveRoomInfo = async (roomId: string) => {
 export const resolveRoomLinkInfo = async (inviteUrl: string) => {
 	try {
 		const room = await RoomModel.findOne({ inviteUrl: inviteUrl }).populate('creator').populate('admins').populate('users').populate('messages');
+		if (!room) {
+			throw new Error("unable to find room");
+		}
 		return room;
 	} catch (err) {
 		throw err;

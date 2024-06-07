@@ -14,15 +14,15 @@ const sendNewMessageNotification = async (sender: DocumentType<User>, room: Docu
 		const message = `${sender?.given_name} ${sender?.family_name} has sent a message in ${room?.name}`;
 		const type = "new message";
 		const url = `http://localhost:5173/tester/${room?.id}`;
-		const notification = await NotificationModel.create({
+		const notifications = await NotificationModel.create([{
 			message,
 			type,
 			url,
 			from: sender,
-		});
-		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notification } }, { new: true, session });
+		}], { session });
+		const user = await UserModel.findByIdAndUpdate(userId, { $push: { notifications: notifications[0] } }, { new: true, session });
 		await session.commitTransaction();
-		io.to(user!.googleId).emit("new message", notification);
+		io.to(user!.googleId).emit("new message", notifications[0]);
 		return;
 	} catch (err) {
 		await session.abortTransaction();
