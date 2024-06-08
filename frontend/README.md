@@ -5,7 +5,7 @@
 - Functionality > asthetics.
 - Limiting latency and easy to debug
 
-This led to some interesting desgin choices, combined with a time crunch and lack of any javascript instruction meant most of front end was hacked together. The major libraries that saved the frontend were react-router and react-bootstrap. These allowed me to quickly set up a reasonable framework. Unfortunately I had to then tear down most this and re-implement it with better routing functions so that I could confirm only authenticated users could sign in
+This led to some interesting desgin choices, combined with a time crunch and lack of any javascript instruction meant most of front end was hacked together. The major libraries that saved the frontend were react-router and react-bootstrap. These allowed me to quickly set up a reasonable framework. Unfortunately I had to then tear down most this and re-implement it with better routing functions so that I could confirm only authenticated users could access certain views. 
 
 ## Routing Documentation
 
@@ -57,3 +57,25 @@ Respective Files:
 
 ### Route: *
 Our general/wildcard route. Same as home and /
+
+## Component Documentation
+
+### App in [App.tsx](src/App.tsx)
+
+### Login in [login.tsx](src/login.tsx)
+
+### NavScroll in [nav.tsx](src/nav.tsx)
+
+### HomeMenu in [home.tsx](src/home.tsx)
+
+### RoomForm in [room_form.tsx](src/room_form.tsx)
+
+### Tester in [try_new_chat.jsx](src/try_new_chat.jsx)
+
+### JoinModal in [join_room.tsx](src/join_room.tsx)
+
+### AddContactModal in [add_contact.tsx](src/add_contact.tsx)
+
+### AccountPage in [my_account.tsx](src/my_account.tsx)
+
+### AdminPanel in [room_admin_panel.js](src/room_admin_panel.js)
