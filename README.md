@@ -30,6 +30,11 @@ It is best practice to use a virtualenv
 ```
 pip install -r requirements.txt
 ```
+Finally edit the .env with your PSU credentials
+```
+TEST_USERNAME=<YOUR USERNAME>
+TEST_PASSWORD=<YOUR PASSWORD>
+```
 other commands can be found in package.json
 
 ## API Documentation:
