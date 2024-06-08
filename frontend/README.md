@@ -13,8 +13,8 @@ This led to some interesting desgin choices, combined with a time crunch and lac
 This displays all the rooms a user is currently in, as well as the navbar.
 
 Respective Files:
-- [nav.tsx](nav.tsx)
-- [home.tsx](home.tsx)
+- [nav.tsx](src/nav.tsx)
+- [home.tsx](src/home.tsx)
 
 ### Route: /home
 See above
@@ -23,27 +23,27 @@ See above
 Super simple, just loads the navbar for unauthed users.
 
 Respective Files:
-- [nav.tsx](nav.tsx)
+- [nav.tsx](src/nav.tsx)
 ### Route: /room/:roomID
 Actual chat room. This is by far the most complex view. It has message sending/ deletion and handles real time updates from socketIO. 
 
 Respective Files:
-- [try_new_chat.jsx](try_new_chat.jsx)
+- [try_new_chat.jsx](src/try_new_chat.jsx)
 ### Route: /newroom
 
 Respective Files:
-- [room_form.tsx](room_form.tsx)
+- [room_form.tsx](src/room_form.tsx)
 ### Route: /invite/:inviteLink
 Displays a bootstrap modal with room name, # of members, and a button to join + redirect to a room.
 
 Respective Files:
-- [join_room.tsx](join_room.tsx)
+- [join_room.tsx](src/join_room.tsx)
 
 ### Route: /addcontact/:userId
 Displays a bootstrap modal with username and buttons to click to add contact.
 
 Respective Files:
-- [add_contact.tsx](add_contact.tsx)
+- [add_contact.tsx](src/add_contact.tsx)
 
 ### Route: /myaccount
 This functionally does nothing and is inacessible from the UI. It was intended to be able to edit profile information, but not implemented.
@@ -52,7 +52,7 @@ This functionally does nothing and is inacessible from the UI. It was intended t
 This is the route for the administration panel. Currently the only option is to delete the room. Non admins will be redirected to home if they try to access this.
 
 Respective Files:
-- [room_admin_panel.tsx](room_admin_panel.tsx)
+- [room_admin_panel.tsx](src/room_admin_panel.tsx)
 
 
 ### Route: *
