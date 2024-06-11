@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { OAuth2Client } from "google-auth-library";
-import { authMW } from "../middleware/auth.ts";
-import { resolveAccountDelete, resolveAccountInfo } from "../resolvers/account.ts";
+import { authMW } from "../middleware/auth.js";
+import { resolveAccountDelete, resolveAccountInfo } from "../resolvers/account.js";
 
 export const accountLogin = async (req: Request, res: Response) => {
 	console.log(req.body);

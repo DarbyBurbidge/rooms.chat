@@ -1,8 +1,8 @@
 import { modelOptions, prop } from "@typegoose/typegoose";
 import type { Ref } from "@typegoose/typegoose";
 import mongoose from "mongoose";
-import { Room } from "./room.ts";
-import { Notification } from "./notification.ts";
+import { Room } from "./room.js";
+import { Notification } from "./notification.js";
 
 @modelOptions({})
 export class User {

@@ -1,5 +1,5 @@
 import { mongoose } from "@typegoose/typegoose";
-import { NotificationModel, UserModel } from "../models/exports.ts";
+import { NotificationModel, UserModel } from "../models/exports.js";
 
 export const resolveNotifiRead = async (googleId: string, noteId: string) => {
 	try {

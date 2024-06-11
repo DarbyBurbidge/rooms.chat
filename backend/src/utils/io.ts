@@ -1,4 +1,4 @@
-import { io } from "../main.ts";
+import { io } from "../main.js";
 
 export const addUserToRoom = async (googleId: string, roomId: string) => {
 	const sockets = await io.in(googleId).fetchSockets();

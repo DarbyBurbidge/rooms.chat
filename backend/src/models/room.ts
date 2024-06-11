@@ -1,8 +1,8 @@
 import { modelOptions, prop } from "@typegoose/typegoose";
 import type { Ref } from "@typegoose/typegoose";
 import mongoose from "mongoose";
-import { User } from "./user.ts";
-import { Message } from "./message.ts";
+import { User } from "./user.js";
+import { Message } from "./message.js";
 
 
 @modelOptions({})

@@ -1,7 +1,6 @@
 import { Request, Response, Router } from "express";
-import { authMW } from "../middleware/auth.ts";
-import { NotificationModel, UserModel } from "../models/exports.ts";
-import { resolveNotifiDelete, resolveNotifiRead } from "../resolvers/notification.ts";
+import { authMW } from "../middleware/auth.js";
+import { resolveNotifiDelete, resolveNotifiRead } from "../resolvers/notification.js";
 
 const notificationRead = async (req: Request, res: Response) => {
 	try {

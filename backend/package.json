@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node bin/main.js",
-    "dev": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm src/main.ts",
+    "dev": "nodemon --exec node --loader ts-node/esm ./src/main.ts",
     "prod": "yarn run build && NODE_ENV=prod yarn run start",
     "test": "jest --detectOpenHandles"
   },

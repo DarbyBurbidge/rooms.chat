@@ -1,5 +1,5 @@
 import { mongoose } from "@typegoose/typegoose";
-import { NotificationModel, RoomModel, UserModel } from "../models/exports.ts";
+import { NotificationModel, RoomModel, UserModel } from "../models/exports.js";
 
 export const resolveUserSrch = async (names: string[]) => {
 	try {

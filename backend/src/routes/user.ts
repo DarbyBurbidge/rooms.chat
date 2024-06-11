@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { authMW } from "../middleware/auth.ts";
-import { resolveUserInvite, resolveUserSrch } from "../resolvers/user.ts";
-import { UserModel } from "../models/exports.ts";
-import { io } from "../main.ts";
+import { authMW } from "../middleware/auth.js";
+import { resolveUserInvite, resolveUserSrch } from "../resolvers/user.js";
+import { UserModel } from "../models/exports.js";
+import { io } from "../main.js";
 
 export const userSrchId = async (req: Request, res: Response) => {
 	try {

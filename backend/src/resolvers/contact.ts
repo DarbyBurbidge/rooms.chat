@@ -1,4 +1,4 @@
-import { UserModel } from "../models/exports.ts";
+import { UserModel } from "../models/exports.js";
 
 
 export const resolveContactList = async (googleId: string) => {

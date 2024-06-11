@@ -1,8 +1,8 @@
 import { getModelForClass } from "@typegoose/typegoose";
-import { Message } from "./message.ts";
-import { Room } from "./room.ts";
-import { User } from "./user.ts";
-import { Notification } from "./notification.ts";
+import { Message } from "./message.js";
+import { Room } from "./room.js";
+import { User } from "./user.js";
+import { Notification } from "./notification.js";
 
 /* This file exists to fix curcular dependencies in the models
  */

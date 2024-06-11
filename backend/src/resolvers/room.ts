@@ -1,5 +1,5 @@
 import { mongoose } from "@typegoose/typegoose";
-import { RoomModel, UserModel } from "../models/exports.ts";
+import { RoomModel, UserModel } from "../models/exports.js";
 
 export const resolveRoomCreate = async (googleId: string, roomName: string, url: string) => {
 	const session = await mongoose.startSession();

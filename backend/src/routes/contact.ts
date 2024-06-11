@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
-import { authMW } from "../middleware/auth.ts";
-import { resolveContactAdd, resolveContactDelete, resolveContactList } from "../resolvers/contact.ts";
+import { authMW } from "../middleware/auth.js";
+import { resolveContactAdd, resolveContactDelete, resolveContactList } from "../resolvers/contact.js";
 
 export const contactList = async (_: Request, res: Response) => {
 	try {

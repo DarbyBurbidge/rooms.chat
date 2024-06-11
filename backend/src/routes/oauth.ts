@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { LoginTicket, OAuth2Client } from "google-auth-library";
-import { UserModel } from "../models/exports.ts";
+import { UserModel } from "../models/exports.js";
 
 export const oauthGet = async (req: Request, res: Response) => {
 	const code = req.query.code;

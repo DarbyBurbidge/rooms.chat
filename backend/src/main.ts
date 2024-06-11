@@ -6,13 +6,13 @@ import { Server } from "socket.io";
 import cookie from "cookie";
 import { config } from "dotenv";
 import { OAuth2Client, LoginTicket } from "google-auth-library";
-import { accountRouter } from "./routes/account.ts";
-import { contactRouter } from "./routes/contact.ts";
-import { roomRouter } from "./routes/room.ts";
-import { userRouter } from "./routes/user.ts";
-import { oauthRouter } from "./routes/oauth.ts";
-import { noteRouter } from "./routes/notification.ts";
-import { messageRouter } from "./routes/message.ts";
+import { accountRouter } from "./routes/account.js";
+import { contactRouter } from "./routes/contact.js";
+import { roomRouter } from "./routes/room.js";
+import { userRouter } from "./routes/user.js";
+import { oauthRouter } from "./routes/oauth.js";
+import { noteRouter } from "./routes/notification.js";
+import { messageRouter } from "./routes/message.js";
 
 config();
 
@@ -66,6 +66,7 @@ io.on("connection", async (socket) => {
 		const googleId = ticket.getPayload()!.sub;
 		// NOTE: this is the users googleId
 		socket.join(googleId);
+
 		socket.emit("join", googleId);
 	} catch (err) {
 		console.error(err)
@@ -76,7 +77,7 @@ io.on("error", (err) => {
 	console.error(err);
 });
 
-mongoose.connect(`${process.env.DEV_URI}`).then(() => {
+mongoose.connect(`${process.env.NODE_ENV == "prod" ? process.env.PROD_URI : process.env.DEV_URI}`).then(() => {
 	console.log("connected to Atlas");
 }).catch((err) => {
 	console.error(err);

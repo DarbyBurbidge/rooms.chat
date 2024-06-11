@@ -1,11 +1,14 @@
 import { mongoose } from "@typegoose/typegoose";
-import { MessageModel, RoomModel, UserModel } from "../models/exports.ts";
+import { MessageModel, RoomModel, UserModel } from "../models/exports.js";
 
 export const resolveMessageCreate = async (googleId: string, roomId: string, content: string) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const sender = await UserModel.findOne({ googleId: googleId });
+		if (!sender) {
+			throw new Error("Unable to find user");
+		}
 		const message = await MessageModel.create([{ sender: sender?.id, content: content }], { session });
 		const room = await RoomModel.findByIdAndUpdate(roomId, { $push: { messages: message[0].id } }, { new: true, session });
 		await session.commitTransaction();
@@ -26,7 +29,9 @@ export const resolveMessageCreate = async (googleId: string, roomId: string, con
 export const resolveMessageEdit = async (googleId: string, messageId: string, content: string) => {
 	try {
 		const user = await UserModel.findOne({ googleId: googleId });
-		console.log(user?.id)
+		if (!user) {
+			throw new Error("Unable to find user");
+		}
 		const message = await MessageModel.findOneAndUpdate({ _id: messageId, sender: user?.id }, { content: content, editTime: Date.now() }, { new: true });
 		return message;
 	} catch (err) {
@@ -40,6 +45,9 @@ export const resolveMessageDelete = async (googleId: string, messageId: string) 
 	session.startTransaction();
 	try {
 		const user = await UserModel.findOne({ googleId: googleId });
+		if (!user) {
+			throw new Error("Unable to find user");
+		}
 		const message = await MessageModel.findOneAndDelete({ _id: messageId, sender: user?.id }, { session });
 		if (message) {
 			console.log(message)

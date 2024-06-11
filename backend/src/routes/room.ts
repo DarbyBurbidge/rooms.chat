@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { authMW } from "../middleware/auth.ts";
 import { randomUUID } from "crypto";
-import { addUserToRoom, removeUserFromRoom } from "../utils/io.ts";
-import { resolveRoomCreate, resolveRoomDelete, resolveRoomInfo, resolveRoomJoin, resolveRoomLeave, resolveRoomLink, resolveRoomLinkInfo, resolveRoomList } from "../resolvers/room.ts";
+import { authMW } from "../middleware/auth.js";
+import { addUserToRoom, removeUserFromRoom } from "../utils/io.js";
+import { resolveRoomCreate, resolveRoomDelete, resolveRoomInfo, resolveRoomJoin, resolveRoomLeave, resolveRoomLink, resolveRoomLinkInfo, resolveRoomList } from "../resolvers/room.js";
 
 export const roomCreate = async (req: Request, res: Response) => {
 	try {

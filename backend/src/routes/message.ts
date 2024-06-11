@@ -1,11 +1,11 @@
 import { Request, Response, Router } from "express";
 import { mongoose, DocumentType } from "@typegoose/typegoose";
-import { io } from "../main.ts";
-import { authMW } from "../middleware/auth.ts";
-import { NotificationModel, UserModel } from "../models/exports.ts";
-import { User } from "src/models/user.ts";
-import { Room } from "src/models/room.ts";
-import { resolveMessageCreate, resolveMessageDelete, resolveMessageEdit } from "../resolvers/message.ts";
+import { io } from "../main.js";
+import { authMW } from "../middleware/auth.js";
+import { NotificationModel, UserModel } from "../models/exports.js";
+import { User } from "src/models/user.js";
+import { Room } from "src/models/room.js";
+import { resolveMessageCreate, resolveMessageDelete, resolveMessageEdit } from "../resolvers/message.js";
 
 const sendNewMessageNotification = async (sender: DocumentType<User>, room: DocumentType<Room>, userId: mongoose.Types.ObjectId) => {
 	const session = await mongoose.startSession();
@@ -53,7 +53,12 @@ const messageCreate = async (req: Request, res: Response) => {
 		});
 		console.log("admins notified");
 		await sendNewMessageNotification(sender!, room!, room?.creator._id!)
-		console.log("made it");
+		if (room && message) {
+			io.to(room.id).emit("message", message);
+		} else {
+			res.statusCode = 500;
+			res.send()
+		}
 		res.send({
 			message: {
 				id: message?.id,
