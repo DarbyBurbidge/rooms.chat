@@ -330,7 +330,7 @@ return: OK, Server Error, or Unauthorized
 - Functionality > asthetics.
 - Limiting latency and easy to debug
 
-This led to some interesting desgin choices, combined with a time crunch and lack of any javascript instruction meant most of front end was hacked together. The major libraries that saved the frontend were react-router and react-bootstrap. These allowed me to quickly set up a reasonable framework. Unfortunately I had to then tear down most this and re-implement it with better routing functions so that I could confirm only authenticated users could access certain views. 
+This led to some interesting desgin choices, combined with a time crunch and lack of any javascript instruction meant most of front end was hacked together. The major libraries that saved the frontend were react-router and react-bootstrap. These allowed me to quickly set up a reasonable framework. Unfortunately I had to then tear down most this and re-implement it with better routing functions so that I could confirm only authenticated users could access certain views. For connecting to the API we used the builtin fetch method, which did lead to some issues with error handling, and further implementations may want to replace this with axios or another similar library. 
 
 ## Component Documentation
 
