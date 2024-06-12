@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import mongoose from "mongoose";
 import { authMW } from "../middleware/auth.js";
 import { resolveUserInvite, resolveUserSrch } from "../resolvers/user.js";
 import { UserModel } from "../models/exports.js";
@@ -6,10 +7,13 @@ import { io } from "../main.js";
 
 export const userSrchId = async (req: Request, res: Response) => {
 	try {
-		console.log(req.query.id?.toString());
-		const user = await UserModel.findById(req.query.id?.toString());
-		console.log(user)
-		res.send(user);
+		const user = await UserModel.findById(new mongoose.Types.ObjectId(req.query.id?.toString()));
+		if (user) {
+			res.send(user);
+		} else {
+			res.statusCode = 500;
+			res.send();
+		}
 	} catch (err) {
 		console.error(err);
 		res.statusCode = 500;

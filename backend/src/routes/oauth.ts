@@ -6,7 +6,7 @@ export const oauthGet = async (req: Request, res: Response) => {
 	const code = req.query.code;
 	console.log('code', code);
 	try {
-		const redirectUrl = 'http://localhost:3000/oauth';
+		const redirectUrl = process.env.OAUTH_REDIRECT_URL;
 		const oAuth2Client = new OAuth2Client(
 			process.env.CLIENT_ID,
 			process.env.CLIENT_SECRET,
@@ -36,7 +36,7 @@ export const oauthGet = async (req: Request, res: Response) => {
 				httpOnly: false,
 				path: '/'
 			});
-		res.redirect(`http://localhost:5173/home`);
+		res.redirect(process.env.FE_REDIRECT_URL!);
 	} catch (err) {
 		console.error(err);
 	}

@@ -14,7 +14,6 @@ import { oauthRouter } from "./routes/oauth.js";
 import { noteRouter } from "./routes/notification.js";
 import { messageRouter } from "./routes/message.js";
 config();
-console.log(process.env.NODE_ENV);
 export const app = express();
 const port = 3000;
 const server = createServer(app);
@@ -46,8 +45,7 @@ io.on("connection", async (socket) => {
         const cookies = cookie.parse(socket.client.request.headers.cookie);
         console.log(cookies);
         const token = decodeURI(cookies.Authorization).split(' ')[1];
-        const redirectUrl = 'http://localhost:3000/oauth';
-        const oAuth2Client = new OAuth2Client(process.env.CLIENT_ID, process.env.CLIENT_SECRET, redirectUrl);
+        const oAuth2Client = new OAuth2Client(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.OAUTH_REDIRECT_URL);
         const ticket = await oAuth2Client.verifyIdToken({ idToken: token, audience: process.env.CLIENT_ID });
         const googleId = ticket.getPayload().sub;
         socket.join(googleId);
@@ -61,7 +59,7 @@ io.on("connection", async (socket) => {
 io.on("error", (err) => {
     console.error(err);
 });
-mongoose.connect(`${process.env.DEV_URI}`).then(() => {
+mongoose.connect(`${process.env.NODE_ENV == "prod" ? process.env.PROD_URI : process.env.DEV_URI}`).then(() => {
     console.log("connected to Atlas");
 }).catch((err) => {
     console.error(err);

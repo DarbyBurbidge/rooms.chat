@@ -13,6 +13,7 @@ import { userRouter } from "./routes/user.js";
 import { oauthRouter } from "./routes/oauth.js";
 import { noteRouter } from "./routes/notification.js";
 import { messageRouter } from "./routes/message.js";
+import { UserModel } from "./models/exports.js";
 
 config();
 
@@ -56,18 +57,24 @@ io.on("connection", async (socket) => {
 		const cookies = cookie.parse(socket.client.request.headers.cookie!);
 		console.log(cookies)
 		const token = decodeURI(cookies.Authorization).split(' ')[1]!
-		const redirectUrl = 'http://localhost:3000/oauth';
 		const oAuth2Client = new OAuth2Client(
 			process.env.CLIENT_ID,
 			process.env.CLIENT_SECRET,
-			redirectUrl
+			process.env.OAUTH_REDIRECT_URL
 		);
 		const ticket: LoginTicket = await oAuth2Client.verifyIdToken({ idToken: token, audience: process.env.CLIENT_ID });
 		const googleId = ticket.getPayload()!.sub;
 		// NOTE: this is the users googleId
+		// add user to personal room
 		socket.join(googleId);
-
 		socket.emit("join", googleId);
+		// add user to all their rooms
+		const user = await UserModel.findOne({ googleId: googleId });
+		user?.rooms.forEach((room) => {
+			socket.join(room.toString());
+			socket.emit("join", room.toString());
+			console.log(`joined room: ${room.toString()}`);
+		});
 	} catch (err) {
 		console.error(err)
 		socket.emit("Could not link socket to user")
