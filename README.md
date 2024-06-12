@@ -75,7 +75,7 @@ It is best practice to use a virtualenv
 ```
 pip install -r requirements.txt
 ```
-Finally edit the .env with your PSU credentials
+Finally edit the /backend/.env with your PSU credentials
 ```
 TEST_USERNAME=<YOUR USERNAME>
 TEST_PASSWORD=<YOUR PASSWORD>
